@@ -1,6 +1,7 @@
 package view;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 import org.jfree.chart.ChartFactory;
@@ -14,11 +15,10 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import java.util.Date;
 
 public class StockMarketSwingUI extends JPanel {
-   private StockChartExample stockChartExample;
+    private StockChartExample stockChartExample;
+
     public StockMarketSwingUI() {
-        stockChartExample=new StockChartExample();
-//        setSize(1400, 900);
-//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        stockChartExample = new StockChartExample();
         setLayout(new BorderLayout());
 
         // Header Panel
@@ -30,37 +30,40 @@ public class StockMarketSwingUI extends JPanel {
         headerPanel.add(createLabel("Khối lượng: 3.926.800", Color.ORANGE));
         add(headerPanel, BorderLayout.NORTH);
 
-        // Main Panel
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayout(1, 3));
-
+        JPanel rightPanel = new JPanel(new BorderLayout());
+        JSplitPane mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        String[] columns = {"KL", "Giá Mua", "Giá Bán", "KL"};
+        Object[][] data = {
+                {"352,900", "37.40", "37.45", "30,800"},
+                {"152,600", "37.35", "37.50", "63,800"},
+                {"322,600", "37.30", "37.55", "123,400"}
+        };
         // Chart Panel with Candlestick Chart
-        JPanel chartPanel = new JPanel();
-        chartPanel.setBorder(BorderFactory.createTitledBorder("Biểu đồ giá"));
-        OHLCDataset dataset = createDataset();
-        JFreeChart chart = ChartFactory.createCandlestickChart(
-                "Giá cổ phiếu FPT",
-                "Thời gian",
-                "Giá",
-                dataset,
-                false
-        );
-        ChartPanel candlestickPanel = new ChartPanel(chart);
-        chartPanel.setLayout(new BorderLayout());
-        chartPanel.add(candlestickPanel, BorderLayout.CENTER);
-        mainPanel.add(chartPanel);
-
+        mainSplitPane.setLeftComponent(stockChartExample);
         // Order Book & Depth Chart
+        JPanel transactionPanel = new JPanel();
         JPanel orderPanel = new JPanel();
         orderPanel.setLayout(new GridLayout(2, 1));
+        JPanel jPanel = new JPanel();
 
         // Order Book
-        JTable orderTable = new JTable(new Object[][]{
-                {"200", "109.60", "109.70"},
-                {"1,100", "109.50", "109.80"},
-                {"5,800", "109.40", "109.90"}
-        }, new String[]{"KL", "Giá Mua", "Giá Bán"});
-        orderPanel.add(new JScrollPane(orderTable));
+        DefaultTableModel model = new DefaultTableModel(data, columns) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        JTable orderTable = new JTable(model);
+        orderTable.setPreferredScrollableViewportSize(new Dimension(350, 48));
+        JScrollPane scrollPane = new JScrollPane(orderTable);
+//        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        orderTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        jPanel.setPreferredSize(new Dimension(100, 200));
+        jPanel.add(scrollPane);
+        jPanel.setBorder(BorderFactory.createTitledBorder("Độ sâu thị trường"));
+        orderPanel.add(jPanel);
+
+        orderPanel.setPreferredSize(new Dimension(110, 100));
 
         // Depth Chart
         JPanel depthChartPanel = new JPanel();
@@ -71,32 +74,44 @@ public class StockMarketSwingUI extends JPanel {
         depthDataset.addValue(5800, "Mua", "109.40");
         depthDataset.addValue(7100, "Bán", "109.70");
 
-        JFreeChart depthChart = ChartFactory.createBarChart(
-                "Độ sâu thị trường",
-                "Giá",
-                "Khối lượng",
-                depthDataset
-        );
+        JFreeChart depthChart = ChartFactory.createBarChart("", "Giá", "", depthDataset);
         ChartPanel depthChartPanelComp = new ChartPanel(depthChart);
         depthChartPanel.setLayout(new BorderLayout());
         depthChartPanel.add(depthChartPanelComp, BorderLayout.CENTER);
-
         orderPanel.add(depthChartPanel);
-        mainPanel.add(orderPanel);
-
-        // Transaction Panel
-        JPanel transactionPanel = new JPanel();
-        transactionPanel.setBorder(BorderFactory.createTitledBorder("Khớp lệnh"));
-        JTable transactionTable = new JTable(new Object[][]{
-                {"100", "109.70", "10:01:20"},
-                {"250", "109.65", "10:03:15"},
-                {"400", "109.60", "10:05:30"}
-        }, new String[]{"Khối lượng", "Giá", "Thời gian"});
+        rightPanel.add(orderPanel, BorderLayout.CENTER);
+        //transactionPanel
         transactionPanel.setLayout(new BorderLayout());
+        transactionPanel.setBorder(BorderFactory.createTitledBorder("Khớp lệnh"));
+        String[] columns1 = {"Thời gian", "KL", "Giá", "+/-", "M/B"};
+        Object[][] data1 = {
+                {"10:01:20", "100", "109.70", "+0.05", "M"},
+                {"10:03:15", "250", "109.65", "-0.05", "B"},
+                {"10:05:30", "400", "109.60", "-0.10", "M"}
+        };
+
+        DefaultTableModel model1 = new DefaultTableModel(data1, columns1) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        JTable transactionTable = new JTable(model1);
+
+        transactionTable.setPreferredScrollableViewportSize(new Dimension(280, 150));
+        transactionTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+        transactionPanel.setPreferredSize(new Dimension(320, 200));
+        transactionPanel.setLayout(new BorderLayout());
+
         transactionPanel.add(new JScrollPane(transactionTable), BorderLayout.CENTER);
 
-        mainPanel.add(transactionPanel);
-        add(mainPanel, BorderLayout.CENTER);
+        rightPanel.add(transactionPanel, BorderLayout.EAST);
+
+
+        mainSplitPane.setRightComponent(rightPanel);
+        add(mainSplitPane, BorderLayout.CENTER);
 
         // Footer Panel
         JPanel footerPanel = new JPanel();
@@ -113,35 +128,5 @@ public class StockMarketSwingUI extends JPanel {
         label.setForeground(color);
         label.setFont(new Font("Arial", Font.BOLD, 16));
         return label;
-    }
-
-    private OHLCDataset createDataset() {
-        int count = 30;
-        Date[] dates = new Date[count];
-        double[] opens = new double[count];
-        double[] highs = new double[count];
-        double[] lows = new double[count];
-        double[] closes = new double[count];
-        double[] volumes = new double[count];
-
-        for (int i = 0; i < count; i++) {
-            dates[i] = new Date(System.currentTimeMillis() - (count - i) * 86400000L);
-            opens[i] = 100 + Math.random() * 10;
-            highs[i] = opens[i] + Math.random() * 5;
-            lows[i] = opens[i] - Math.random() * 5;
-            closes[i] = opens[i] + Math.random() * 2 - 1;
-            volumes[i] = 1000 + Math.random() * 1000;
-        }
-
-        OHLCDataItem[] dataItems = new OHLCDataItem[count];
-        for (int i = 0; i < count; i++) {
-            dataItems[i] = new OHLCDataItem(dates[i], opens[i], highs[i], lows[i], closes[i], volumes[i]);
-        }
-
-        return new DefaultOHLCDataset("FPT", dataItems);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(StockMarketSwingUI::new);
     }
 }

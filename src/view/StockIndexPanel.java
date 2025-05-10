@@ -87,7 +87,7 @@ public class StockIndexPanel extends JPanel {
             chartContainer.setBackground(new Color(20, 20, 30));
 
             ChartPanel chartPanel = new ChartPanel(chart);
-            chartPanel.setPreferredSize(new Dimension(295, 170));
+            chartPanel.setPreferredSize(new Dimension(292, 165));
             chartPanel.setBackground(new Color(20, 20, 30));
             chartPanel.setPopupMenu(null);
 

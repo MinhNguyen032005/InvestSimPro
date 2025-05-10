@@ -8,6 +8,8 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Random;
@@ -16,9 +18,11 @@ public class StockBoardFull extends JPanel {
     private JTable table;
     private DefaultTableModel defaultTableModel;
     private IController iController;
+    private StockMarketSwingUI stockMarketSwingUI;
 
     public StockBoardFull(Object[][] objects, IController iController) {
         this.iController = iController;
+        this.stockMarketSwingUI = new StockMarketSwingUI();
         String[] columnNames = {
                 "CK", "Trần", "Sàn", "TC",
                 "Giá 3 (M)", "KL 3 (M)", "Giá 2 (M)", "KL 2 (M)", "Giá 1 (M)", "KL 1 (M)",
@@ -84,12 +88,36 @@ public class StockBoardFull extends JPanel {
         table.getTableHeader().setForeground(Color.WHITE);
         table.setBorder(BorderFactory.createLineBorder(new Color(53, 54, 65)));
 
-        table.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-//                JOptionPane.showMessageDialog(null,
-//                        "Thông tin ô được chọn", JOptionPane.INFORMATION_MESSAGE);
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+                // Lấy kích thước màn hình
+                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+                // Tạo JDialog mới để chứa stockMarketSwingUI
+                JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(table), "", true);
+
+                // Kích thước dialog chiếm khoảng 90% chiều rộng và 85% chiều cao màn hình
+                int width = (int) (screenSize.getWidth() * 0.9);
+                int height = (int) (screenSize.getHeight() * 0.85);
+                dialog.setSize(width, height);
+
+                // Tính toán tọa độ để xuất hiện ở giữa màn hình
+                int x = (int) (screenSize.getWidth() / 2 - dialog.getWidth() / 2);
+                int y = (int) (screenSize.getHeight() / 2 - dialog.getHeight() / 2);
+                dialog.setLocation(x, y);
+
+                // Thêm panel giao diện vào dialog
+                dialog.add(stockMarketSwingUI);
+
+                // Hiển thị dialog
+                dialog.setVisible(true);
             }
         });
+
+
 
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(i == 0 ? 70 : 77);
@@ -146,7 +174,7 @@ public class StockBoardFull extends JPanel {
         verticalBar.setPreferredSize(new Dimension(8, Integer.MAX_VALUE));
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        scrollPane.setPreferredSize(new Dimension(screenSize.width, screenSize.height / 2 + 210));
+        scrollPane.setPreferredSize(new Dimension(screenSize.width, screenSize.height / 2 + 150));
         add(scrollPane, BorderLayout.CENTER);
         Timer timer = new Timer(60000, new ActionListener() {
             @Override
