@@ -3,8 +3,8 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 
-public class PanelLoginWithVideoBackground extends JPanel {
-    public PanelLoginWithVideoBackground(SignInPanel signInFrom, HomePageUser homePageUser) {
+public class PanelLogin extends JPanel {
+    public PanelLogin(SignInPanel signInFrom, HomePageUser homePageUser) {
         setBackground(new Color(28, 26, 41));
         setLayout(new BorderLayout()); // hoặc null
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();

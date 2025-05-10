@@ -8,6 +8,8 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.File;
 
 public class SignInFrom extends JPanel {
@@ -18,13 +20,20 @@ public class SignInFrom extends JPanel {
     private JButton button;
 
     public SignInFrom(IController iController) {
+        this.setPreferredSize(new Dimension(1000,1000));
         Font robotoMedium = FontLoader.loadFont("src/data/font/Roboto-Light.ttf");
         this.setLayout(new BorderLayout());
         this.infoPanel = new JPanel(new BorderLayout());
         this.account = new JTextField(20);
         this.passwd = new JPasswordField(20);
         this.button = new JButton("Đăng nhập");
-        this.button.setBackground(new Color(248, 180, 0));
+        this.button.setFont(new Font("Roboto", Font.BOLD, 16));   // Font chữ đẹp
+        this.button.setBackground(Color.red);       // Màu xanh chủ đạo
+        this.button.setForeground(Color.WHITE);                   // Chữ màu trắng
+        this.button.setFocusPainted(false);                       // Bỏ khung focus
+        this.button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));  // Khoảng cách padding
+        this.button.setCursor(new Cursor(Cursor.HAND_CURSOR));    // Con trỏ hình bàn tay
+
 
         // Left Panel (Image)
         JPanel leftPanel = new JPanel();
@@ -41,22 +50,19 @@ public class SignInFrom extends JPanel {
         JLabel loginLabel = new JLabel("Đăng Nhập");
         loginLabel.setFont(new Font("Roboto", Font.BOLD, 28));
         loginLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        loginLabel.setForeground(new Color(248, 180, 0)); // Màu vàng gold nổi bật
+        loginLabel.setForeground(new Color(0, 0, 0)); // Màu vàng gold nổi bật
         loginLabel.setBounds(70, 20, 200, 40);
         loginLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        button.setForeground(Color.BLACK);
         button.setFont(new Font("Roboto", Font.BOLD, 18));
         button.setFocusPainted(false);
         button.setBounds(50, 180, 100, 100);
-        button.setBorder(BorderFactory.createLineBorder(new Color(218, 165, 32), 2));
-//        button.addActionListener(iController.login(account, passwd, iController));
 
         JButton forgotPasswordButton = new JButton("Quên mật khẩu");
         forgotPasswordButton.setFont(new Font("Roboto", Font.PLAIN, 14).deriveFont(Font.PLAIN));
         forgotPasswordButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        forgotPasswordButton.setForeground(Color.GRAY);
+        forgotPasswordButton.setForeground(new Color(190, 0, 0));
         forgotPasswordButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         forgotPasswordButton.setHorizontalAlignment(SwingConstants.LEFT);
         forgotPasswordButton.setFont(FontLoader.loadCustomizeFont(robotoMedium, 15f));
@@ -69,7 +75,7 @@ public class SignInFrom extends JPanel {
         JButton signUpButton = new JButton("Đăng Ký");
         signUpButton.setFont(new Font("Roboto", Font.PLAIN, 14).deriveFont(Font.PLAIN));
         signUpButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        signUpButton.setForeground(Color.GRAY);
+        signUpButton.setForeground(new Color(190, 0, 0));
         signUpButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         signUpButton.setHorizontalAlignment(SwingConstants.LEFT);
         signUpButton.setFont(FontLoader.loadCustomizeFont(robotoMedium, 15f));
@@ -92,49 +98,105 @@ public class SignInFrom extends JPanel {
         gbc.gridx = 1;
         buttonPanel.add(forgotPasswordButton, gbc);
 //        forgotPasswordButton.addActionListener(iController.forgotPasswd());
-        account.setMaximumSize(new Dimension(400, 40));
-        passwd.setMaximumSize(new Dimension(400, 40));
-        button.setMaximumSize(new Dimension(400, 1000));
+        account.setMaximumSize(new Dimension(400, 20));
+        passwd.setMaximumSize(new Dimension(400, 20));
+        button.setMaximumSize(new Dimension(390, 1000));
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.X_AXIS)); // Thiết lập layout cho leftPanel
 //        rightPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 //panel cua khung tai khoan
         JPanel accountPanel = new JPanel(new BorderLayout());
-        JLabel accountLabel = new JLabel("Tài khoản:");
-        accountLabel.setFont(FontLoader.loadCustomizeFont(robotoMedium, 16f));
-        accountLabel.setForeground(Color.BLACK);
+        accountPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEmptyBorder(), // Không viền
+                "Tài khoản", // Tiêu đề của Panel
+                0, 0, // Vị trí tiêu đề: 0 = LEFT, 0 = TOP
+                new Font("Arial", Font.BOLD, 14),
+                new Color(0, 0, 0) // Màu tiêu đề
+        ));
+//        accountPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        accountPanel.setBackground(Color.WHITE);
 
+        // Tạo JTextField với thiết kế đẹp mắt
         account = new JTextField(20);
-        account.setFont(FontLoader.loadCustomizeFont(robotoMedium, 16f));
-        account.setBackground(Color.BLACK);
-        account.setForeground(Color.WHITE);
-        account.setOpaque(true);
-        account.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(255, 255, 255), 2), BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        account.setFont(new Font("Arial", Font.PLAIN, 16));
+        account.setBackground(new Color(240, 240, 240));
+        account.setForeground(Color.BLACK);
+        account.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)
+        ));
+        account.setPreferredSize(new Dimension(300, 40));
 
-        accountPanel.add(accountLabel, BorderLayout.WEST);
+        // Hiệu ứng khi focus vào JTextField
+        account.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                account.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(66, 135, 245), 2),
+                        BorderFactory.createEmptyBorder(8, 12, 8, 12)
+                ));
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                account.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+                        BorderFactory.createEmptyBorder(8, 12, 8, 12)
+                ));
+            }
+        });
+
         accountPanel.add(account, BorderLayout.CENTER);
 
 // panel cua khung mat khau
         JPanel passwdPanel = new JPanel(new BorderLayout());
-        JLabel passwdLabel = new JLabel("Mật khẩu:");
-        passwdLabel.setFont(FontLoader.loadCustomizeFont(robotoMedium, 16f));
-        passwdLabel.setForeground(Color.BLACK);
+        passwdPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEmptyBorder(), // Không viền
+                "Mật khẩu", // Tiêu đề của Panel
+                0, 0, // Vị trí tiêu đề: 0 = LEFT, 0 = TOP
+                new Font("Arial", Font.BOLD, 14),
+                new Color(0, 0, 0) // Màu tiêu đề
+        ));
+        passwdPanel.setBackground(Color.WHITE);
 
-        passwd.setFont(FontLoader.loadCustomizeFont(robotoMedium, 16f));
-        passwd.setBackground(Color.BLACK);
-        passwd.setForeground(Color.WHITE);
-        passwd.setOpaque(true);
-        passwd.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(255, 255, 255), 2), BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        // Tạo PasswordField với thiết kế đẹp mắt
+        passwd = new JPasswordField();
+        passwd.setFont(new Font("Arial", Font.PLAIN, 16));
+        passwd.setBackground(new Color(240, 240, 240));
+        passwd.setForeground(Color.BLACK);
+        passwd.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)
+        ));
+        passwd.setEchoChar('●');
+        passwd.setPreferredSize(new Dimension(300, 40));
 
-        passwdPanel.add(passwdLabel, BorderLayout.WEST);
+        // Hiệu ứng khi focus vào PasswordField
+        passwd.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                passwd.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(66, 135, 245), 2),
+                        BorderFactory.createEmptyBorder(8, 12, 8, 12)
+                ));
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                passwd.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+                        BorderFactory.createEmptyBorder(8, 12, 8, 12)
+                ));
+            }
+        });
+
         passwdPanel.add(passwd, BorderLayout.CENTER);
-
         rightPanel.add(leftPanel);
         rightPanel.add(loginLabel);
-        rightPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        rightPanel.add(Box.createRigidArea(new Dimension(0, 7)));
         rightPanel.add(accountPanel);
-        rightPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        rightPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         rightPanel.add(passwdPanel);
-        rightPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        rightPanel.add(Box.createRigidArea(new Dimension(0, 8)));
         rightPanel.add(button);
         rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         rightPanel.add(buttonPanel);
@@ -142,29 +204,18 @@ public class SignInFrom extends JPanel {
         passwd.addActionListener(e -> button.doClick());
         rightPanel.setPreferredSize(new Dimension(500, 400));
         infoPanel.add(rightPanel, BorderLayout.CENTER);
-        rightPanel.setBackground(new Color(10, 25, 47, 120));
+        rightPanel.setBackground(new Color(255, 255, 255));
         add(this.infoPanel, BorderLayout.CENTER);
-        setBackground(new Color(0, 0, 0, 100));
-        setBorder(BorderFactory.createLineBorder(new Color(248, 180, 0), 2));
+//        setBackground(new Color(255, 255, 255, 100));
+        setBorder(BorderFactory.createLineBorder(new Color(0,0,0), 2));
 
 
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(211, 47, 47)); // Đỏ đô khi hover
-                button.setForeground(Color.WHITE);
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(248, 180, 0)); // Quay lại màu vàng gold
-                button.setForeground(Color.BLACK);
-            }
-        });
         signUpButton.addActionListener(e -> {
             rightPanel.add(new FromSignUp(iController));
         });
 
         button.addActionListener(e -> {
-            iController.login(account,passwd);
+            iController.login(account, passwd);
         });
 
 

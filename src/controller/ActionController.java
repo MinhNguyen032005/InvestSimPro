@@ -8,21 +8,15 @@ import view.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
-import java.util.Stack;
 
 public class ActionController implements IController {
     static String role;
     HomePageUser homePageUser;
-    PanelLoginWithVideoBackground panelLoginWithVideoBackground;
+    PanelLogin panelLoginWithVideoBackground;
     PanelBottomPageRoot panelBottomPageRoot;
     PanelMidPageRoot panelMidPageRoot;
     PanelLeftPageRoot panelLeftPageRoot;
@@ -48,7 +42,7 @@ public class ActionController implements IController {
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
         findStock = new FindStock();
-        iBoardPanel = new IBoardPanel();
+        iBoardPanel = new IBoardPanel(this);
         stockBoardFull = new StockBoardFull(managementMarketStock.mapToArray(), this);
         stockBoardUI = new StockBoardUI(managementMarketStock.generateSummaryData("table"), this);
         stockIndexPanel = new StockIndexPanel(managementMarketStock.generateSummaryData(""), this);
@@ -59,7 +53,7 @@ public class ActionController implements IController {
         accountManagement = new AccountManagement();
         signInFrom = new SignInFrom(this);
         signInPanel = new SignInPanel(signInFrom);
-        panelLoginWithVideoBackground = new PanelLoginWithVideoBackground(signInPanel, homePageUser);
+        panelLoginWithVideoBackground = new PanelLogin(signInPanel, homePageUser);
         cardPanel.add(panelLoginWithVideoBackground, "login");
         mainFrame = new MainFrame(cardPanel, this);
 
