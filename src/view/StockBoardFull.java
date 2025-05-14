@@ -92,33 +92,33 @@ public class StockBoardFull extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
+                int row = table.rowAtPoint(e.getPoint());
+                int col = table.columnAtPoint(e.getPoint());
+                if (col == 0 && row != -1) {
+                    // Lấy kích thước màn hình
+                    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-                // Lấy kích thước màn hình
-                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                    // Tạo JDialog mới để chứa stockMarketSwingUI
+                    JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(table), "", true);
 
-                // Tạo JDialog mới để chứa stockMarketSwingUI
-                JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(table), "", true);
+                    // Kích thước dialog chiếm khoảng 90% chiều rộng và 85% chiều cao màn hình
+                    int width = (int) (screenSize.getWidth() * 0.9);
+                    int height = (int) (screenSize.getHeight() * 0.85);
+                    dialog.setSize(width, height);
 
-                // Kích thước dialog chiếm khoảng 90% chiều rộng và 85% chiều cao màn hình
-                int width = (int) (screenSize.getWidth() * 0.9);
-                int height = (int) (screenSize.getHeight() * 0.85);
-                dialog.setSize(width, height);
+                    // Tính toán tọa độ để xuất hiện ở giữa màn hình
+                    int x = (int) (screenSize.getWidth() / 2 - dialog.getWidth() / 2);
+                    int y = (int) (screenSize.getHeight() / 2 - dialog.getHeight() / 2);
+                    dialog.setLocation(x, y);
 
-                // Tính toán tọa độ để xuất hiện ở giữa màn hình
-                int x = (int) (screenSize.getWidth() / 2 - dialog.getWidth() / 2);
-                int y = (int) (screenSize.getHeight() / 2 - dialog.getHeight() / 2);
-                dialog.setLocation(x, y);
+                    // Thêm panel giao diện vào dialog
+                    dialog.add(stockMarketSwingUI);
 
-                // Thêm panel giao diện vào dialog
-                dialog.add(stockMarketSwingUI);
-
-                // Hiển thị dialog
-                dialog.setVisible(true);
+                    // Hiển thị dialog
+                    dialog.setVisible(true);
+                }
             }
         });
-
-
-
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(i == 0 ? 70 : 77);
         }
@@ -185,6 +185,14 @@ public class StockBoardFull extends JPanel {
         timer.start();
         setBackground(new Color(28, 26, 41));
 
+    }
+
+    public JTable getTable() {
+        return table;
+    }
+
+    public DefaultTableModel getDefaultTableModel() {
+        return defaultTableModel;
     }
 
 

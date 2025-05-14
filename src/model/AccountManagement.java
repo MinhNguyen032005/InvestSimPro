@@ -1,5 +1,7 @@
 package model;
 
+import controller.ActionController;
+
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -11,6 +13,7 @@ public class AccountManagement {
     private Map<String, Account> accountMap;
     private static AccountManagement instance;
     private String token;
+    private Facade facade;
 
     public static AccountManagement getInstance() {
         if (instance == null) {
@@ -20,7 +23,8 @@ public class AccountManagement {
     }
 
     public AccountManagement() {
-        this.accountMap = new HashMap<>();
+        facade = new Facade(this);
+        accountMap = new HashMap<>();
         loadDataAccount();
     }
 
@@ -33,6 +37,53 @@ public class AccountManagement {
         accountMap.put(accountNew.getIdAccount(), accountNew);
         writeToFile(FILE_PATH, accountMap);
     }
+
+    public void deleteAccount(String nameAccount) {
+        boolean isDeleted = false;
+
+        // 🔹 Sử dụng Iterator để tránh ConcurrentModificationException
+        Iterator<Map.Entry<String, Account>> iterator = accountMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, Account> entry = iterator.next();
+            Account account = entry.getValue();
+            if (account.getNameAccount().equals(nameAccount)) {
+                iterator.remove();  // ✅ Xóa một cách an toàn
+                isDeleted = true;
+            }
+        }
+
+        // 2️⃣ Đọc lại toàn bộ file và lưu vào List
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\\|\\|");
+                if (parts.length > 4 && parts[3].equals(nameAccount)) {
+                    isDeleted = true;
+                    continue; // Bỏ qua dòng cần xóa
+                }
+                lines.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Nếu không tìm thấy tài khoản trong file
+        if (!isDeleted) {
+            return;
+        }
+
+        // 3️⃣ Ghi đè lại file với danh sách mới
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))) {
+            for (String line : lines) {
+                bw.write(line);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void writeToFile(String fileName, Map<String, Account> accountMap) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
@@ -91,25 +142,14 @@ public class AccountManagement {
                 } else {
                     this.token = "000";
                 }
-                System.out.println(token);
                 return true;
             }
         }
         return false;
     }
 
-    public void log(String maString) {
-        System.out.println("[" + this.hashCode() + "]" + maString);
-    }
-
     public String getToken() {
         return token;
-    }
-
-    public String[] getColumnNames() {
-        return new String[]{
-                "ID", "Họ tên", "Số dư", "Tài khoản", "Mật khẩu", "Email", "Vai trò", "Ngày tạo"
-        };
     }
 
     public Object[][] convertMapToMatrixFixed() {
@@ -132,8 +172,131 @@ public class AccountManagement {
             matrix[row][7] = acc.createAt;
             row++;
         }
-
         return matrix;
+    }
+
+    public Users getAccount(String name) {
+        for (Account account : accountMap.values()) {
+            Users acc = (Users) account;
+            if (acc.getNameAccount().equals(name)) {
+                return acc;
+            }
+        }
+        return null;
+    }
+
+    public Users getAccountID(String id) {
+        return (Users) accountMap.get(id);
+    }
+
+    public Map<String, Account> getAccountMap() {
+        return accountMap;
+    }
+
+    public void changePassword(String nameAccount, char[] newPassword) {
+        boolean isUpdated = false;
+
+        // 1️⃣ Tìm tài khoản trong accountMap và kiểm tra mật khẩu cũ
+        for (Account account : accountMap.values()) {
+            if (account.getNameAccount().equals(nameAccount)) {
+                // 2️⃣ Cập nhật mật khẩu mới trong accountMap
+                account.setPasswdAccount(String.valueOf(newPassword));
+                isUpdated = true;
+                break;
+            }
+        }
+        // Nếu không tìm thấy tài khoản hoặc mật khẩu cũ không đúng
+        if (!isUpdated) {
+            return;
+        }
+        // 3️⃣ Đọc lại toàn bộ file và lưu vào List
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\\|\\|");
+                // Kiểm tra nếu dòng này là của tài khoản cần thay đổi mật khẩu
+                if (parts.length > 4 && parts[3].equals(nameAccount)) {
+                    // Cập nhật mật khẩu mới vào dòng này
+                    parts[4] = String.valueOf(newPassword); // Giả sử cột 4 là mật khẩu
+                    String updatedLine = String.join("||", parts);
+                    lines.add(updatedLine); // Thêm dòng đã cập nhật mật khẩu mới
+                } else {
+                    lines.add(line); // Giữ lại các dòng không bị thay đổi
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // 4️⃣ Ghi đè lại file với danh sách mới
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))) {
+            for (String line : lines) {
+                bw.write(line);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void withDraw(String id, double amount) {
+        if (facade.withDraw(id, amount)) {
+            Users acc = (Users) accountMap.get(id);
+            double newBalance = acc.getBankAccount().getAmount();
+            updateBalance(id, newBalance);
+        }
+    }
+
+    public void deposition(String id, double amount) {
+        facade.deposit(id, amount);
+        Users acc = (Users) accountMap.get(id);
+        double newBalance = acc.getBankAccount().getAmount();
+        updateBalance(id, newBalance);
+    }
+
+    public void updateBalance(String id, double newBalance) {
+        boolean isUpdated = false;
+
+        // 1️⃣ Tìm tài khoản trong accountMap và cập nhật số tiền
+        Users acc = (Users) accountMap.get(id);
+        acc.setBalance(newBalance);
+        isUpdated = true;
+
+        // Nếu không tìm thấy tài khoản thì thoát khỏi hàm
+        if (!isUpdated) {
+            System.out.println("Không tìm thấy tài khoản.");
+            return;
+        }
+
+        // 2️⃣ Đọc lại toàn bộ file và lưu vào List
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\\|\\|");
+                // Kiểm tra nếu dòng này là của tài khoản cần thay đổi số tiền
+                if (parts.length > 3 && parts[0].equals(id)) {
+                    // Cập nhật số tiền mới vào cột 3 (index 2)
+                    parts[2] = String.valueOf(newBalance);
+                    String updatedLine = String.join("||", parts);
+                    lines.add(updatedLine); // Thêm dòng đã cập nhật số tiền mới
+                } else {
+                    lines.add(line); // Giữ lại các dòng không bị thay đổi
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 3️⃣ Ghi đè lại file với danh sách mới
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))) {
+            for (String line : lines) {
+                bw.write(line);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

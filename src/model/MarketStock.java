@@ -1,12 +1,11 @@
 package model;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
 
 public class MarketStock {
     private String symbol;               // CK
@@ -33,6 +32,10 @@ public class MarketStock {
     private int foreignBuy;               // NN mua
     private int foreignSell;              // NN bán
     private int room;                     // Room
+
+    private static final SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+    private static final String currentDate = sdfDate.format(new Date());
+    private static final String filePath = "src/data/file_data/market_data_" + currentDate + ".txt";
 
 
     public MarketStock(String symbol, double referencePrice) {
@@ -136,12 +139,36 @@ public class MarketStock {
 
     public static List<MarketStock> generateFakeStocks(int number) {
         List<MarketStock> stocks = new ArrayList<>();
-        Random rand = new Random();
+        Map<String, Double> priceMap = new HashMap<>();
+
+        // 1️⃣ Đọc dữ liệu từ file
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                if (parts.length > 2) {
+                    String symbol = parts[1];
+                    double referencePrice = Double.parseDouble(parts[2]);
+                    priceMap.put(symbol, referencePrice);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // 2️⃣ Tạo đối tượng MarketStock
         for (int i = 0; i < number; i++) {
             String symbol = "CK" + (100 + i);
-            double referencePrice = 10 + rand.nextDouble() * 90;
-            stocks.add(new MarketStock(symbol, Math.round(referencePrice * 100.0) / 100.0));
+            double referencePrice;
+
+            if (priceMap.containsKey(symbol)) {
+                referencePrice = priceMap.get(symbol);
+            } else {
+                referencePrice = Math.round((10 + new Random().nextDouble() * 90) * 100.0) / 100.0;
+            }
+            // Thêm vào danh sách cổ phiếu
+            stocks.add(new MarketStock(symbol, referencePrice));
         }
+
         return stocks;
     }
 
@@ -258,5 +285,17 @@ public class MarketStock {
 
     public void setLow(double low) {
         this.low = low;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        MarketStock stock = (MarketStock) o;
+        return getSymbol().equals(stock.symbol);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSymbol());
     }
 }

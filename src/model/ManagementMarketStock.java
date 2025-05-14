@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ManagementMarketStock {
     private final SimpleDateFormat sdfDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -88,9 +89,9 @@ public class ManagementMarketStock {
         int i = 0;
         for (MarketStock stock : realTimeStocks) {
             array[i][0] = stock.getSymbol();         // "CK"
-            array[i][1] = stock.getCeilingPrice();   // "Trần"
-            array[i][2] = stock.getFloorPrice();     // "Sàn"
-            array[i][3] = stock.getReferencePrice(); // "TC"
+            array[i][1] = stock.getFloorPrice();   // "Trần"
+            array[i][2] = stock.getReferencePrice();     // "Sàn"
+            array[i][3] = stock.getCeilingPrice(); // "TC"
             array[i][4] = stock.getPrice3M();        // "Giá 3 (M)"
             array[i][5] = stock.getVolume3M();       // "KL 3 (M)"
             array[i][6] = stock.getPrice2M();        // "Giá 2 (M)"
@@ -144,7 +145,6 @@ public class ManagementMarketStock {
         while (isRunning) {
             String currentTimeKey = LocalDateTime.now().format(formatter);
             if (!currentTimeKey.equals(lastCheckedTime) && !marketStockMap.containsKey(currentTimeKey)) {
-                System.out.println(2);
                 stocks = MarketStock.generateFakeStocks(number);
                 for (MarketStock stock : stocks) {
                     double newMatchPrice = Math.round((stock.getReferencePrice() * (0.9 + rand.nextDouble() * 0.2)) * 100.0) / 100.0;
