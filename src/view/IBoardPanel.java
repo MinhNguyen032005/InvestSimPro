@@ -18,11 +18,15 @@ public class IBoardPanel extends JPanel implements Runnable {
     private PanelBankManagement panelBankManagement;
     private PanelNotificationMoMoStyle panelNotificationMoMoStyle;
     private IController iController;
+    private JDialog dialog;
+
+
+    public JDialog getDialog() {
+        return dialog;
+    }
 
     public IBoardPanel(IController iController) {
         this.iController = iController;
-        this.panelNotificationMoMoStyle = new PanelNotificationMoMoStyle();
-        this.panelBankManagement = new PanelBankManagement();
         setLayout(new BorderLayout());
         setBackground(new Color(20, 20, 40));
         setBorder(new EmptyBorder(5, 10, 5, 10));
@@ -38,11 +42,11 @@ public class IBoardPanel extends JPanel implements Runnable {
 
         // Icons
         JButton bellIcon = new JButton();
-        ImageIcon originalIcon = new ImageIcon("src/data/img/bell.png");
+        ImageIcon originalIcon = new ImageIcon("src/data/img/transaction.png");
         BufferedImage bufferedImage = toBufferedImage(originalIcon.getImage());
         applyColorFilter(bufferedImage, Color.WHITE); // Red with transparency
         ImageIcon imageIcon1 = new ImageIcon(bufferedImage);
-        Image scaledImage = imageIcon1.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH);
+        Image scaledImage = imageIcon1.getImage().getScaledInstance(35, 35, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
         bellIcon.setIcon(scaledIcon);
         bellIcon.setBackground(new Color(0, 0, 0, 0));
@@ -64,6 +68,7 @@ public class IBoardPanel extends JPanel implements Runnable {
                 int y = (int) (screenSize.getHeight() / 2 - (double) dialog.getHeight() / 2);
                 dialog.setLocation(x, y);
                 // Thêm panel vào JDialog
+                panelNotificationMoMoStyle = new PanelNotificationMoMoStyle(iController);
                 dialog.add(panelNotificationMoMoStyle, BorderLayout.CENTER);
                 // Kích thước tối đa cho panel (bằng với kích thước của dialog)
                 dialog.setLocationRelativeTo(null);
@@ -89,8 +94,7 @@ public class IBoardPanel extends JPanel implements Runnable {
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         rightPanel.setOpaque(false);
 
-        JButton openAccountButton = new JButton(" ");
-        JButton loginButton = new JButton("Đăng nhập");
+        JButton openAccountButton = new JButton("");
         ImageIcon originalIcon1 = new ImageIcon("src/data/img/user.png");
         BufferedImage bufferedImage1 = toBufferedImage(originalIcon1.getImage());
         applyColorFilter(bufferedImage1, Color.WHITE); // Red with transparency
@@ -112,9 +116,10 @@ public class IBoardPanel extends JPanel implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
                 // Tạo JDialog mới để chứa stockMarketSwingUI
-                JDialog dialog = new JDialog();
+                dialog = new JDialog();
+                panelBankManagement = new PanelBankManagement(iController);
                 // Kích thước của dialog
-                dialog.setSize(480, 500);
+                dialog.setSize(850, 500);
                 // Tính toán tọa độ để xuất hiện ở giữa màn hình
                 int x = (int) (screenSize.getWidth() / 2 - (double) dialog.getWidth() / 2);
                 int y = (int) (screenSize.getHeight() / 2 - (double) dialog.getHeight() / 2);
@@ -134,13 +139,8 @@ public class IBoardPanel extends JPanel implements Runnable {
             }
         });
 
-        loginButton.setForeground(Color.WHITE);
-        loginButton.setBackground(Color.RED);
-        loginButton.setFocusPainted(false);
-
         rightPanel.add(centerPanel);
         rightPanel.add(openAccountButton);
-        rightPanel.add(loginButton);
 
         add(rightPanel, BorderLayout.EAST);
 
@@ -169,5 +169,6 @@ public class IBoardPanel extends JPanel implements Runnable {
         g2d.fillRect(0, 0, image.getWidth(), image.getHeight());
         g2d.dispose();
     }
+
 }
 

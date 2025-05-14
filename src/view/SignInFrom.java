@@ -20,7 +20,7 @@ public class SignInFrom extends JPanel {
     private JButton button;
 
     public SignInFrom(IController iController) {
-        this.setPreferredSize(new Dimension(1000,1000));
+        this.setPreferredSize(new Dimension(1000, 1000));
         Font robotoMedium = FontLoader.loadFont("src/data/font/Roboto-Light.ttf");
         this.setLayout(new BorderLayout());
         this.infoPanel = new JPanel(new BorderLayout());
@@ -207,11 +207,12 @@ public class SignInFrom extends JPanel {
         rightPanel.setBackground(new Color(255, 255, 255));
         add(this.infoPanel, BorderLayout.CENTER);
 //        setBackground(new Color(255, 255, 255, 100));
-        setBorder(BorderFactory.createLineBorder(new Color(0,0,0), 2));
-
-
+        setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 2));
         signUpButton.addActionListener(e -> {
             rightPanel.add(new FromSignUp(iController));
+        });
+        forgotPasswordButton.addActionListener(e -> {
+            rightPanel.add(new ForgotPasswordSwing(iController));
         });
 
         button.addActionListener(e -> {

@@ -10,7 +10,6 @@ public abstract class Account {
     protected String email;
     protected String role;
     protected LocalDate createAt;
-    protected Facade facade;
 
     public Account(String idAccount, String name, String nameAccount, String passwdAccount, String email) {
         this.idAccount = idAccount;
@@ -72,4 +71,7 @@ public abstract class Account {
         return createAt;
     }
 
+    public void setPasswdAccount(String passwdAccount) {
+        this.passwdAccount = passwdAccount;
+    }
 }

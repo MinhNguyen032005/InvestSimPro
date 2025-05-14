@@ -52,7 +52,7 @@ public class PanelLeftPageRoot extends JPanel {
             btn.setBorder(null);
             btn.setSize(50, 75);
             btn.setIconTextGap(20);
-            btn.addActionListener(e->{
+            btn.addActionListener(e -> {
                 iController.functionAdmin(e.getActionCommand());
             });
             panelButtons.add(btn);

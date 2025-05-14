@@ -7,28 +7,19 @@ import java.awt.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.data.xy.OHLCDataItem;
-import org.jfree.data.xy.OHLCDataset;
-import org.jfree.data.xy.DefaultOHLCDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
-import java.util.Date;
-
 public class StockMarketSwingUI extends JPanel {
-    private StockChartExample stockChartExample;
+    private StockChart stockChartExample;
+    private StockMarketHeaderUI stockMarketHeaderUI;
 
     public StockMarketSwingUI() {
-        stockChartExample = new StockChartExample();
+        this.stockMarketHeaderUI = new StockMarketHeaderUI();
+        this.stockChartExample = new StockChart();
         setLayout(new BorderLayout());
 
         // Header Panel
-        JPanel headerPanel = new JPanel();
-        headerPanel.setLayout(new GridLayout(1, 3));
-        headerPanel.setBackground(new Color(34, 40, 49));
-        headerPanel.add(createLabel("Mã cổ phiếu: FPT", Color.WHITE));
-        headerPanel.add(createLabel("Giá hiện tại: 109.70", Color.GREEN));
-        headerPanel.add(createLabel("Khối lượng: 3.926.800", Color.ORANGE));
-        add(headerPanel, BorderLayout.NORTH);
+        add(stockMarketHeaderUI, BorderLayout.NORTH);
 
         JPanel rightPanel = new JPanel(new BorderLayout());
         JSplitPane mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -56,18 +47,29 @@ public class StockMarketSwingUI extends JPanel {
         JTable orderTable = new JTable(model);
         orderTable.setPreferredScrollableViewportSize(new Dimension(350, 48));
         JScrollPane scrollPane = new JScrollPane(orderTable);
-//        scrollPane.setBorder(BorderFactory.createEmptyBorder());
         orderTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         jPanel.setPreferredSize(new Dimension(100, 200));
         jPanel.add(scrollPane);
-        jPanel.setBorder(BorderFactory.createTitledBorder("Độ sâu thị trường"));
+        jPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEmptyBorder(), // Không viền
+                "Độ sâu thị trường", // Tiêu đề của Panel
+                0, 0, // Vị trí tiêu đề: 0 = LEFT, 0 = TOP
+                new Font("Arial", Font.BOLD, 14),
+                new Color(0,0,0) // Màu tiêu đề
+        ));
         orderPanel.add(jPanel);
 
         orderPanel.setPreferredSize(new Dimension(110, 100));
 
         // Depth Chart
         JPanel depthChartPanel = new JPanel();
-        depthChartPanel.setBorder(BorderFactory.createTitledBorder("Biểu đồ độ sâu thị trường"));
+        depthChartPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEmptyBorder(), // Không viền
+                "Biểu đồ độ sâu thị trường", // Tiêu đề của Panel
+                0, 0, // Vị trí tiêu đề: 0 = LEFT, 0 = TOP
+                new Font("Arial", Font.BOLD, 14),
+                new Color(0,0,0) // Màu tiêu đề
+        ));
         DefaultCategoryDataset depthDataset = new DefaultCategoryDataset();
         depthDataset.addValue(200, "Mua", "109.60");
         depthDataset.addValue(1100, "Mua", "109.50");
@@ -82,7 +84,13 @@ public class StockMarketSwingUI extends JPanel {
         rightPanel.add(orderPanel, BorderLayout.CENTER);
         //transactionPanel
         transactionPanel.setLayout(new BorderLayout());
-        transactionPanel.setBorder(BorderFactory.createTitledBorder("Khớp lệnh"));
+        transactionPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEmptyBorder(), // Không viền
+                "Khớp lệnh", // Tiêu đề của Panel
+                0, 0, // Vị trí tiêu đề: 0 = LEFT, 0 = TOP
+                new Font("Arial", Font.BOLD, 14),
+                new Color(0,0,0) // Màu tiêu đề
+        ));
         String[] columns1 = {"Thời gian", "KL", "Giá", "+/-", "M/B"};
         Object[][] data1 = {
                 {"10:01:20", "100", "109.70", "+0.05", "M"},
@@ -112,21 +120,7 @@ public class StockMarketSwingUI extends JPanel {
 
         mainSplitPane.setRightComponent(rightPanel);
         add(mainSplitPane, BorderLayout.CENTER);
-
-        // Footer Panel
-        JPanel footerPanel = new JPanel();
-        footerPanel.setLayout(new FlowLayout());
-        footerPanel.add(new JButton("Phân tích cơ bản"));
-        footerPanel.add(new JButton("Đặt lệnh"));
-        add(footerPanel, BorderLayout.SOUTH);
-
         setVisible(true);
     }
 
-    private JLabel createLabel(String text, Color color) {
-        JLabel label = new JLabel(text, SwingConstants.CENTER);
-        label.setForeground(color);
-        label.setFont(new Font("Arial", Font.BOLD, 16));
-        return label;
-    }
 }

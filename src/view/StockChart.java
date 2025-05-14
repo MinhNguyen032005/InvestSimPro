@@ -7,11 +7,9 @@ import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.CandlestickRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
-import org.jfree.data.time.Day;
 import org.jfree.data.xy.DefaultHighLowDataset;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.OHLCDataset;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -21,19 +19,21 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class StockChartExample extends JPanel {
-    public StockChartExample() {
+public class StockChart extends JPanel {
+    public StockChart() {
         JFreeChart chart = createStockChart();
         ChartPanel panel = new ChartPanel(chart);
         panel.setMouseWheelEnabled(true);
         panel.setDomainZoomable(true);
         panel.setRangeZoomable(true);
+        this.setBackground(new Color(17, 17, 27));
         this.add(panel);
     }
 
     private static JFreeChart createStockChart() {
         OHLCDataset ohlcDataset = createOHLCData();
         IntervalXYDataset volumeDataset = createVolumeDataset();
+
 
         // Candlestick Plot
         NumberAxis priceAxis = new NumberAxis("Giá");
@@ -58,7 +58,7 @@ public class StockChartExample extends JPanel {
         // Combined Plot
         DateAxis domainAxis = new DateAxis("Ngày");
         domainAxis.setDateFormatOverride(new SimpleDateFormat("dd-MM-yyyy"));
-        domainAxis.setTickLabelPaint(Color.WHITE);
+        domainAxis.setTickLabelPaint(Color.BLACK);
 
         CombinedDomainXYPlot combinedPlot = new CombinedDomainXYPlot(domainAxis);
         combinedPlot.add(candlestickPlot, 3);
@@ -69,7 +69,7 @@ public class StockChartExample extends JPanel {
                 new Font("Arial", Font.BOLD, 18),
                 combinedPlot,
                 false);
-        chart.setBackgroundPaint(new Color(20, 20, 20));
+        chart.setBackgroundPaint(new Color(255,255,255));
 
         return chart;
     }

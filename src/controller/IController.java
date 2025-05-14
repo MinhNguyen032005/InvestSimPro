@@ -1,8 +1,10 @@
 package controller;
 
+import view.PanelBankManagement;
+import view.PanelNotificationMoMoStyle;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionListener;
 
 public interface IController {
     void login(JTextField account, JPasswordField passwd);
@@ -16,4 +18,18 @@ public interface IController {
     void setStockData(DefaultTableModel model);
 
     void setStockExchange(DefaultTableModel model);
+
+    void sendRequest(String text, JLabel jLabel);
+
+    void findStock(String text, JTable table, DefaultTableModel defaultTableModel);
+
+    void newTable(String text, DefaultTableModel defaultTableModel);
+
+    void bankUser(PanelBankManagement panelBankManagement);
+
+    boolean checkLogin();
+
+    boolean checkContain(String text);
+
+    void notifyTransaction(PanelNotificationMoMoStyle panelNotificationMoMoStyle);
 }

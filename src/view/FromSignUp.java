@@ -26,12 +26,6 @@ public class FromSignUp extends JOptionPane {
         gbc.gridx = 0;
         gbc.gridy = 0;
 
-        // Tiêu đề form
-        JLabel titleLabel = new JLabel("ĐĂNG KÝ TÀI KHOẢN");
-        titleLabel.setFont(new Font("Roboto", Font.BOLD, 22));
-        titleLabel.setForeground(new Color(0, 0, 0));
-        panel.add(titleLabel, gbc);
-
         // Họ và tên
         gbc.gridy++;
         JLabel nameLabel = new JLabel("Họ và tên:");
@@ -85,7 +79,7 @@ public class FromSignUp extends JOptionPane {
         // Xử lý sự kiện khi chọn OK hoặc Cancel
         if (option == JOptionPane.OK_OPTION) {
             if (nameField.getText().isEmpty() || accountField.getText().isEmpty()
-                    || passwordField.getPassword().length == 0 || emailField.getText().isEmpty()) {
+                    || passwordField.getPassword().length == 0 || emailField.getText().isEmpty() || !emailField.getText().contains("@")||iController.checkContain(accountField.getText())) {
                 JOptionPane.showMessageDialog(null, "Đăng ký không thành công", "Lỗi", JOptionPane.ERROR_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(null, "🎉 Đăng ký thành công! 🎉\n\n", "Thành công", JOptionPane.INFORMATION_MESSAGE);
