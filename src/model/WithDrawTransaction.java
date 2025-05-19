@@ -3,7 +3,7 @@ package model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class WithDrawTransaction extends Transaction implements Calculator {
+public class WithDrawTransaction extends Transaction {
 
     public WithDrawTransaction(BankAccount idAcc, double amount) {
         super(idAcc, amount);

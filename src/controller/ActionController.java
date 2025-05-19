@@ -37,16 +37,19 @@ public class ActionController implements IController {
     StockIndexPanel stockIndexPanel;
     FindStock findStock;
     IBoardPanel iBoardPanel;
+    IBoardOrderUI iBoardOrderUI;
     private DefaultTableModel oldTableModel = null;
     private String userName;
     private boolean checkLogin = false;
     private TransactionProcess transactionProcess;
-
+    private StockChart stockChart;
+    private HistoryTransaction transaction;
 
     public ActionController() throws Exception {
         role = "";
         transactionProcess = new TransactionProcess();
         managementMarketStock = new ManagementMarketStock();
+        transaction = new HistoryTransaction();
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
         findStock = new FindStock(this);
@@ -296,10 +299,7 @@ public class ActionController implements IController {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     accountManagement.deposition(acc.getIdAccount(), Double.parseDouble(panelBankManagement.getTxtDepositAmount().getText()));
-                    JOptionPane.showMessageDialog(panelBankManagement,
-                            "Bạn đã nạp:" + panelBankManagement.getTxtDepositAmount().getText(),
-                            "Thông báo",
-                            JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(panelBankManagement, "Bạn đã nạp:" + panelBankManagement.getTxtDepositAmount().getText(), "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                     panelBankManagement.getTxtBalance().setText(String.valueOf(acc.getBankAccount().getAmount()));
                     transactionProcess.addTransaction(acc.getIdAccount(), Double.parseDouble(panelBankManagement.getTxtDepositAmount().getText()), "deposition");
                     panelBankManagement.getTxtDepositAmount().setText("");
@@ -323,16 +323,10 @@ public class ActionController implements IController {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (Double.parseDouble(panelBankManagement.getTxtWithdrawAmount().getText()) > Double.parseDouble(panelBankManagement.getTxtBalance().getText())) {
-                        JOptionPane.showMessageDialog(panelBankManagement,
-                                "Vượt quá số tiền rút!",
-                                "Thông báo",
-                                JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(panelBankManagement, "Vượt quá số tiền rút!", "Thông báo", JOptionPane.WARNING_MESSAGE);
                     } else {
                         accountManagement.withDraw(acc.getIdAccount(), Double.parseDouble(panelBankManagement.getTxtWithdrawAmount().getText()));
-                        JOptionPane.showMessageDialog(panelBankManagement,
-                                "Bạn đã rút:" + panelBankManagement.getTxtWithdrawAmount().getText(),
-                                "Thông báo",
-                                JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(panelBankManagement, "Bạn đã rút:" + panelBankManagement.getTxtWithdrawAmount().getText(), "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 
                         panelBankManagement.getTxtBalance().setText(String.valueOf(acc.getBalance()));
                         transactionProcess.addTransaction(acc.getIdAccount(), Double.parseDouble(panelBankManagement.getTxtWithdrawAmount().getText()), "with draw");
@@ -488,5 +482,168 @@ public class ActionController implements IController {
             scrollPane.getVerticalScrollBar().setUnitIncrement(16);
             panelNotificationMoMoStyle.add(scrollPane, BorderLayout.CENTER);
         }
+    }
+
+    @Override
+    public void headerMarketStock(StockMarketHeaderUI stockMarketHeaderUI, Object[] objects) {
+
+        JPanel leftPanel = new JPanel(new BorderLayout());
+        leftPanel.setOpaque(false);
+
+        JTextField searchField = new JTextField(objects[0].toString());
+        searchField.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        searchField.setForeground(Color.WHITE);
+        searchField.setBackground(new Color(34, 34, 50));
+        searchField.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        leftPanel.add(searchField, BorderLayout.NORTH);
+
+
+        // Center Section (Price + Details)
+        JPanel centerPanel = new JPanel(new GridLayout(2, 3));
+        centerPanel.setOpaque(false);
+
+        centerPanel.add(createLabel(objects[3].toString(), new Color(255, 215, 0), 32));
+        centerPanel.add(createLabel("0.00", Color.YELLOW, 14));
+        centerPanel.add(createLabel("0.00%", Color.YELLOW, 14));
+        double price3M = (Double) objects[4];
+        int volume3M = ((Number) objects[5]).intValue();
+
+        double price2M = (Double) objects[6];
+        int volume2M = ((Number) objects[7]).intValue();
+
+        double price1M = (Double) objects[8];
+        int volume1M = ((Number) objects[9]).intValue();
+
+        double price1B = (Double) objects[10];
+        int volume1B = ((Number) objects[11]).intValue();
+
+        double price2B = (Double) objects[12];
+        int volume2B = ((Number) objects[13]).intValue();
+
+        double price3B = (Double) objects[14];
+        int volume3B = ((Number) objects[15]).intValue();
+
+// Tính tổng giá trị và tổng khối lượng
+        double totalValue = price3M * volume3M + price2M * volume2M + price1M * volume1M + price1B * volume1B + price2B * volume2B + price3B * volume3B;
+
+        int totalVolume = volume3M + volume2M + volume1M + volume1B + volume2B + volume3B;
+
+// Tính giá trung bình
+        double averagePrice = (totalVolume > 0) ? totalValue / totalVolume : 0;
+
+
+        centerPanel.add(createLabel("Mở cửa/Trung bình: " + price3M + "/" + Math.round(averagePrice), Color.GREEN, 14));
+        centerPanel.add(createLabel("Thấp/Cao: " + objects[17] + "/" + objects[18], new Color(255, 71, 87), 14));
+        centerPanel.add(createLabel("Tổng KL: " + objects[16].toString(), Color.WHITE, 14));
+
+        // Right Section (Buttons)
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        rightPanel.setOpaque(false);
+
+        JButton analysisButton = new JButton("Phân tích cơ bản");
+        analysisButton.setBackground(new Color(60, 60, 80));
+        analysisButton.setForeground(Color.WHITE);
+        JButton orderButton = new JButton("Đặt lệnh");
+        orderButton.setBackground(new Color(0, 150, 136));
+        orderButton.setForeground(Color.WHITE);
+        ActionController actionController = this;
+        orderButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(mainFrame), "", true);
+                iBoardOrderUI = new IBoardOrderUI(stockChart, actionController);
+                int width = (int) (screenSize.getWidth() * 0.9);
+                int height = (int) (screenSize.getHeight() * 0.85);
+                dialog.setSize(width, height);
+                int x = (int) (screenSize.getWidth() / 2 - dialog.getWidth() / 2);
+                int y = (int) (screenSize.getHeight() / 2 - dialog.getHeight() / 2);
+                dialog.setLocation(x, y);
+                stockBoardFull.getDialog().setVisible(false);
+                dialog.add(iBoardOrderUI);
+                dialog.setVisible(true);
+            }
+        });
+        rightPanel.setOpaque(false);
+        JPanel rightPanel1 = new JPanel(new GridBagLayout());
+        rightPanel1.setBackground(new Color(28, 26, 41));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 15, 5, 15); // Khoảng cách: trên, trái, dưới, phải
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+// Hàng 1 - Tiêu đề
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        rightPanel1.add(createLabel("Trần", new Color(170, 0, 255), 14), gbc);
+
+        gbc.gridx = 1;
+        rightPanel1.add(createLabel("Sàn", new Color(0, 206, 209), 14), gbc);
+
+        gbc.gridx = 2;
+        rightPanel1.add(createLabel("TC", new Color(255, 215, 0), 14), gbc);
+
+// Hàng 2 - Giá trị
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        rightPanel1.add(createLabel(objects[1].toString(), new Color(170, 0, 255), 16), gbc);
+
+        gbc.gridx = 1;
+        rightPanel1.add(createLabel(objects[2].toString(), new Color(0, 206, 209), 16), gbc);
+
+        gbc.gridx = 2;
+        rightPanel1.add(createLabel(objects[3].toString(), new Color(255, 215, 0), 16), gbc);
+
+
+        rightPanel.add(rightPanel1);
+        rightPanel.add(analysisButton);
+        rightPanel.add(orderButton);
+
+        // Bottom Tab Section
+        JPanel tabPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
+        tabPanel.setOpaque(false);
+
+        stockMarketHeaderUI.add(leftPanel, BorderLayout.WEST);
+        stockMarketHeaderUI.add(centerPanel, BorderLayout.CENTER);
+        stockMarketHeaderUI.add(rightPanel, BorderLayout.EAST);
+        stockMarketHeaderUI.add(tabPanel, BorderLayout.SOUTH);
+    }
+
+    @Override
+    public void getStockChartExample(StockChart stockChartExample) {
+        this.stockChart = stockChartExample;
+    }
+
+    @Override
+    public String setSucMua() {
+        Users acc = accountManagement.getAccount(userName);
+        return acc.getBalance() + "";
+    }
+
+    @Override
+    public void actionTransactionStock(String actionCommand, String text, String text1) {
+        Users acc = accountManagement.getAccount(userName);
+        if (actionCommand.equals("Bán")) {
+            System.out.println(1);
+            Stock stock = new Stock("", Integer.parseInt(text), Double.parseDouble(text), LocalDateTime.now());
+            accountManagement.sellStock(acc.getIdAccount(), stock);
+            return;
+        } else {
+            System.out.println("mua");
+            Stock stock = new Stock("", Integer.parseInt(text), Double.parseDouble(text), LocalDateTime.now());
+            accountManagement.buyStock(acc.getIdAccount(), stock);
+        }
+    }
+
+    @Override
+    public void saveTransactionStock(String currentTime, Object object, String thaoTacValue, String s, String s1, String s2, String trangThai) {
+
+    }
+
+    private JLabel createLabel(String text, Color color, int fontSize) {
+        JLabel label = new JLabel(text);
+        label.setForeground(color);
+        label.setFont(new Font("SansSerif", Font.BOLD, fontSize));
+        return label;
     }
 }

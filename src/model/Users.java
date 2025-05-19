@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Users extends Account implements Subject {
     private double balance;
-    private List<Stock> existingStocks;
+    private List<StockTransaction> existingStocks;
     private List<Observer> observers;
     private BankAccount bankAccount;
 
@@ -18,6 +18,7 @@ public class Users extends Account implements Subject {
         this.role = "user";
         this.balance = 0;
         this.bankAccount = new BankAccount(idAccount, fullName, this.balance);
+        this.bankAccount.getInstance(this.balance);
 
     }
 
@@ -60,4 +61,6 @@ public class Users extends Account implements Subject {
     public void setBalance(double balance) {
         this.balance = balance;
     }
+
+
 }

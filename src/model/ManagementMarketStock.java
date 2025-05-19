@@ -9,8 +9,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ManagementMarketStock {
-    private final SimpleDateFormat sdfDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-    private String currentTime = sdfDateTime.format(new Date());
     private static final SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
     private static final String currentDate = sdfDate.format(new Date());
     private static final String filePath = "src/data/file_data/market_data_" + currentDate + ".txt";
@@ -136,6 +134,10 @@ public class ManagementMarketStock {
         if (apiThread != null && apiThread.isAlive()) {
             apiThread.interrupt();
         }
+    }
+
+    public int getNumber() {
+        return number;
     }
 
     public void runAPIStock() {

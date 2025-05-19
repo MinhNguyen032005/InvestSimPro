@@ -43,17 +43,14 @@ public class BankAccount {
 
     public synchronized boolean withdraw(double amount) {
         if (this.amount >= amount) {
-            System.out.println("rut tien thanh cong voi so tien:" + amount);
             this.amount -= amount;
             return true;
         }
-        System.out.println("vot qua so tien trong tai khoan");
         return false;
     }
 
     public synchronized void deposit(double amount) {
         this.amount += amount;
-        System.out.println(this.amount);
     }
 
     public String getBankID() {
@@ -67,4 +64,5 @@ public class BankAccount {
     public double getAmount() {
         return amount;
     }
+
 }
