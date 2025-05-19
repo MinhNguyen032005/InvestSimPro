@@ -298,4 +298,12 @@ public class MarketStock {
     public int hashCode() {
         return Objects.hash(getSymbol());
     }
+
+    public double maxPriceBuy() {
+        return Math.max(this.price1M, Math.max(this.price2M, this.price3M));
+    }
+
+    public double maxPriceSell() {
+        return Math.max(this.price1B, Math.max(this.price2B, this.price3B));
+    }
 }

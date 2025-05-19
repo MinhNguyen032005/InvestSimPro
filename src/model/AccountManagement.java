@@ -1,10 +1,6 @@
 package model;
 
-import controller.ActionController;
-
 import java.io.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -13,7 +9,8 @@ public class AccountManagement {
     private Map<String, Account> accountMap;
     private static AccountManagement instance;
     private String token;
-    private Facade facade;
+    private TemplateMethodTransaction templateMethodTransaction;
+    private TemplateStockTransactionProcess transactionProcess;
 
     public static AccountManagement getInstance() {
         if (instance == null) {
@@ -23,7 +20,8 @@ public class AccountManagement {
     }
 
     public AccountManagement() {
-        facade = new Facade(this);
+        templateMethodTransaction = new TemplateMethodTransaction(this);
+        transactionProcess = new TemplateStockTransactionProcess(this);
         accountMap = new HashMap<>();
         loadDataAccount();
     }
@@ -240,7 +238,7 @@ public class AccountManagement {
     }
 
     public void withDraw(String id, double amount) {
-        if (facade.withDraw(id, amount)) {
+        if (templateMethodTransaction.withDraw(id, amount)) {
             Users acc = (Users) accountMap.get(id);
             double newBalance = acc.getBankAccount().getAmount();
             updateBalance(id, newBalance);
@@ -248,7 +246,7 @@ public class AccountManagement {
     }
 
     public void deposition(String id, double amount) {
-        facade.deposit(id, amount);
+        templateMethodTransaction.deposit(id, amount);
         Users acc = (Users) accountMap.get(id);
         double newBalance = acc.getBankAccount().getAmount();
         updateBalance(id, newBalance);
@@ -297,6 +295,20 @@ public class AccountManagement {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void buyStock(String id, Stock stock) {
+        transactionProcess.buyStock(id, stock);
+        Users acc = (Users) accountMap.get(id);
+        double newBalance = acc.getBankAccount().getAmount();
+        updateBalance(id, newBalance);
+    }
+
+    public void sellStock(String id, Stock stock) {
+        transactionProcess.sellStock(id, stock);
+        Users acc = (Users) accountMap.get(id);
+        double newBalance = acc.getBankAccount().getAmount();
+        updateBalance(id, newBalance);
     }
 
 

@@ -83,18 +83,6 @@ public class TransactionProcess {
         }
     }
 
-    /**
-     * 📌 **Hiển thị tất cả giao dịch**
-     */
-    public void displayAllTransactions() {
-        for (Map.Entry<String, List<Transaction>> entry : transactionMap.entrySet()) {
-            System.out.println("User ID: " + entry.getKey());
-            for (Transaction transaction : entry.getValue()) {
-                System.out.println("\t" + transaction);
-            }
-        }
-    }
-
     public List<Transaction> getTransactionsByUserId(String userId) {
         return transactionMap.getOrDefault(userId, new ArrayList<>());
     }

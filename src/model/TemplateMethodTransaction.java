@@ -1,10 +1,10 @@
 package model;
 
-public class Facade {
+public class TemplateMethodTransaction {
     private AccountManagement acc;
     private Transaction transaction;
 
-    public Facade(AccountManagement acc) {
+    public TemplateMethodTransaction(AccountManagement acc) {
         this.acc = acc;
     }
 
@@ -23,17 +23,4 @@ public class Facade {
             transaction.performanceTransaction();
         }
     }
-
-    public void printAll() {
-
-    }
-
-    public void printWithDrave() {
-
-    }
-
-    public void printAllTransaction() {
-
-    }
-
 }

@@ -2,6 +2,8 @@ package controller;
 
 import view.PanelBankManagement;
 import view.PanelNotificationMoMoStyle;
+import view.StockChart;
+import view.StockMarketHeaderUI;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -32,4 +34,14 @@ public interface IController {
     boolean checkContain(String text);
 
     void notifyTransaction(PanelNotificationMoMoStyle panelNotificationMoMoStyle);
+
+    void headerMarketStock(StockMarketHeaderUI stockMarketHeaderUI, Object[] objects);
+
+    void getStockChartExample(StockChart stockChartExample);
+
+    String setSucMua();
+
+    void actionTransactionStock(String actionCommand, String text, String text1);
+
+    void saveTransactionStock(String currentTime, Object object, String thaoTacValue, String s, String s1, String s2, String trangThai);
 }
