@@ -3,11 +3,10 @@ package model;
 import lap.decord.ObServer;
 
 public interface Subject {
-    void addObServer(ObServer obServer);
+    void attach(Observer o);     // Đăng ký người theo dõi
 
-    void removeObServer(ObServer obServer);
+    void detach(Observer o);     // Gỡ người theo dõi
 
-    void notiify();
+    void notifyObservers();      // Gửi thông báo đến tất cả
 
-    void updateThongBao(String ndTB);
 }

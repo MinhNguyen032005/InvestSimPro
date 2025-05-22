@@ -4,12 +4,14 @@ import javax.swing.*;
 import java.awt.*;
 
 import controller.IController;
+import model.HistoryTransactionStock;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.DocumentFilter;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.time.LocalTime;
@@ -29,13 +31,14 @@ public class IBoardOrderUI extends JPanel {
     private double currentPrice = 100.0;
     private Random random = new Random();
     private int editingRow = -1;
-    private StockChart stockChart;
+    private Object[] objects;
     private IController controller;
     private ScheduledExecutorService scheduler;
 
-    public IBoardOrderUI(StockChart stockChart, IController controller) {
-        this.stockChart = stockChart;
+    public IBoardOrderUI(StockChart stockChart, Object[] objects, IController controller) {
         this.controller = controller;
+        this.objects = objects;
+        System.out.println(Arrays.toString(objects));
         setPreferredSize(new Dimension(1600, 800));
         setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE);
@@ -46,8 +49,8 @@ public class IBoardOrderUI extends JPanel {
         orderPanel.setLayout(new BorderLayout());
         orderPanel.setBorder(BorderFactory.createTitledBorder("Bảng Giá Đặt Lệnh"));
 
-        String[] columns = {"Giá Mua", "KL Mua", "Giá Bán", "KL Bán"};
-        Object[][] data = new Object[10][4];
+        String[] columns = {"KL Mua", "Giá Mua", "Giá Bán", "KL Bán"};
+        Object[][] data = dataOrderTable(objects);
         JTable table = new JTable(data, columns);
         table.setFillsViewportHeight(true);
         table.setRowHeight(25);
@@ -63,7 +66,7 @@ public class IBoardOrderUI extends JPanel {
 
         String[] labels = {"Sức mua:", "Mua/Bán tối đa:", "Giá Đặt:", "Khối Lượng:", "Loại Lệnh:", "Giá kích hoạt:", "Thao tác:"};
         JTextField[] textFields = {txtSucmua = new JTextField(), txtMuaBan = new JTextField(), txtGiaDat = new JTextField(), txtKhoiLuong = new JTextField(), txtGiaKichHoat = new JTextField()};
-        String[] orderTypes = {"Up", "Down", "OCO", "BullBear", "T.Up", "T.Down"};
+        String[] orderTypes = {"Up", "Down", "OCO", "T.Up", "T.Down"};
         orderType = new JComboBox<>(orderTypes);
 
 
@@ -75,17 +78,17 @@ public class IBoardOrderUI extends JPanel {
         String[] thaoTacOptions = {"Mua", "Bán"};
         thaoTac = new JComboBox<>(thaoTacOptions);
         thaoTac.setSelectedIndex(0);
-        double price3M = (Double) stockChart.getObjects()[4];
+        double price3M = (Double) objects[4];
 
-        double price2M = (Double) stockChart.getObjects()[6];
+        double price2M = (Double) objects[6];
 
-        double price1M = (Double) stockChart.getObjects()[8];
+        double price1M = (Double) objects[8];
 
-        double price1B = (Double) stockChart.getObjects()[10];
+        double price1B = (Double) objects[10];
 
-        double price2B = (Double) stockChart.getObjects()[12];
+        double price2B = (Double) objects[12];
 
-        double price3B = (Double) stockChart.getObjects()[14];
+        double price3B = (Double) objects[14];
         txtGiaDat.setText(String.valueOf(Math.min(price1M, Math.min(price2M, price3M))));
         thaoTac.addActionListener(e -> {
             if (thaoTac.getSelectedItem().equals("Mua")) {
@@ -172,7 +175,7 @@ public class IBoardOrderUI extends JPanel {
         // History panel setup
         JPanel historyPanel = new JPanel(new BorderLayout());
         historyPanel.setBorder(BorderFactory.createTitledBorder("Lịch sử giao dịch"));
-        String[] historyColumns = {"Thời gian", "Mã CP", "Loại Lệnh", "Giá", "Khối Lượng", "Tổng giá trị", "Trạng thái"};
+        String[] historyColumns = {"Thời gian", "Mã CP", "Loại Lệnh", "Giá", "Khối Lượng", "Tổng giá trị", "M/B", "Trạng thái"};
         historyModel = new DefaultTableModel(historyColumns, 0);
         historyTable = new JTable(historyModel) {
             @Override
@@ -182,6 +185,7 @@ public class IBoardOrderUI extends JPanel {
         };
         historyTable.getTableHeader().setReorderingAllowed(false);
         historyTable.getTableHeader().setResizingAllowed(false);
+        controller.updateTable(historyModel, objects[0].toString());
         JScrollPane historyScrollPane = new JScrollPane(historyTable);
         historyPanel.add(historyScrollPane, BorderLayout.CENTER);
 
@@ -212,75 +216,210 @@ public class IBoardOrderUI extends JPanel {
     }
 
     private void datLenh(IController controller) {
-        String currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-        String thaoTacValue = thaoTac.getSelectedItem().toString();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String currentTime = LocalDateTime.now().format(formatter);
+        String thaoTacValue = orderType.getSelectedItem().toString();
+        String muaBan = thaoTac.getSelectedItem().toString();
         double giaDat = Double.parseDouble(txtGiaDat.getText());
         double giaKichHoat = Double.parseDouble(txtGiaKichHoat.getText());
         double khoiLuong = Double.parseDouble(txtKhoiLuong.getText());
         double sucMua = Double.parseDouble(txtSucmua.getText());
         double thanhTien = khoiLuong * giaKichHoat;
         String trangThai = "";
-        if ("Bán".equals(thaoTacValue)) {
-            if (giaDat >= giaKichHoat && thanhTien <= sucMua) {
-                trangThai = "Thành công";
-                historyModel.addRow(new Object[]{
-                        currentTime,
-                        stockChart.getObjects()[0],
-                        orderType.getSelectedItem(),
-                        txtGiaDat.getText(),
-                        txtKhoiLuong.getText(),
-                        thanhTien,
-                        "Thành công"
-                });
+        if (orderType.getSelectedItem().toString().equals("Up")) {
+            if ("Bán".equals(muaBan)) {
+                if (controller.checkBan(muaBan, txtKhoiLuong.getText(), txtGiaKichHoat.getText(), objects[0].toString())) {
+                    if (giaDat >= giaKichHoat) {
+                        trangThai = "Thành công";
+                        historyModel.addRow(new Object[]{
+                                currentTime,
+                                objects[0],
+                                orderType.getSelectedItem(),
+                                txtGiaDat.getText(),
+                                txtKhoiLuong.getText(),
+                                thanhTien, muaBan,
+                                trangThai
+                        });
+                        txtSucmua.setText(sucMua + thanhTien + "");
+                        controller.actionTransactionStock(muaBan, txtKhoiLuong.getText(), txtGiaKichHoat.getText(), objects[0].toString());
+                    } else {
+                        trangThai = "Chờ giá hợp lý";
+                        historyModel.addRow(new Object[]{
+                                currentTime,
+                                objects[0],
+                                orderType.getSelectedItem(),
+                                txtGiaDat.getText(),
+                                txtKhoiLuong.getText(),
+                                thanhTien, muaBan,
+                                trangThai
+                        });
+                    }
+                }
+            } else if ("Mua".equals(muaBan)) {
+                if (Double.parseDouble(txtGiaDat.getText()) <= Double.parseDouble(txtGiaKichHoat.getText())) {
+                    if (thanhTien <= sucMua) {
+                        trangThai = "Thành công";
 
-                controller.actionTransactionStock(thaoTacValue, txtKhoiLuong.getText(), txtGiaKichHoat.getText());
-            } else {
-                trangThai = "Chờ giá hợp lý";
-                historyModel.addRow(new Object[]{
-                        currentTime,
-                        stockChart.getObjects()[0],
-                        orderType.getSelectedItem(),
-                        txtGiaDat.getText(),
-                        txtKhoiLuong.getText(),
-                        thanhTien,
-                        trangThai
-                });
+                        // Trừ tiền sau khi giao dịch thành công
+                        sucMua -= thanhTien;
+                        txtSucmua.setText(sucMua + "");
+
+                        historyModel.addRow(new Object[]{
+                                currentTime,
+                                objects[0],
+                                orderType.getSelectedItem(),
+                                txtGiaDat.getText(),
+                                txtKhoiLuong.getText(),
+                                thanhTien, muaBan,
+                                trangThai
+                        });
+
+                        controller.actionTransactionStock(
+                                muaBan,
+                                txtKhoiLuong.getText(),
+                                txtGiaKichHoat.getText(),
+                                objects[0].toString()
+                        );
+                    } else {
+                        trangThai = "Không đủ sức mua";
+                        historyModel.addRow(new Object[]{
+                                currentTime,
+                                objects[0],
+                                orderType.getSelectedItem(),
+                                txtGiaDat.getText(),
+                                txtKhoiLuong.getText(),
+                                thanhTien, muaBan,
+                                trangThai
+                        });
+                    }
+                } else {
+                    trangThai = "Chờ giá hợp lý";
+                    historyModel.addRow(new Object[]{
+                            currentTime,
+                            objects[0],
+                            orderType.getSelectedItem(),
+                            txtGiaDat.getText(),
+                            txtKhoiLuong.getText(),
+                            thanhTien, muaBan,
+                            trangThai
+                    });
+                }
             }
-        } else if ("Mua".equals(thaoTacValue)) {
-            if (giaDat <= giaKichHoat && thanhTien <= sucMua) {
-                // Nếu giá đặt <= giá kích hoạt và đủ tiền để giao dịch
-                trangThai = "Thành công";
-                historyModel.addRow(new Object[]{
-                        currentTime,
-                        stockChart.getObjects()[0],
-                        orderType.getSelectedItem(),
-                        txtGiaDat.getText(),
-                        txtKhoiLuong.getText(),
-                        thanhTien,
-                        "Thành công"
-                });
+            controller.saveTransactionStock(currentTime, objects[0], thaoTacValue, String.valueOf(giaDat), String.valueOf(khoiLuong), String.valueOf(thanhTien), muaBan, trangThai);
+            startAutoCheck();
+        } else if (orderType.getSelectedItem().toString().equals("Down")) {
+            if ("Bán".equals(muaBan)) {
+                if (controller.checkBan(muaBan, txtKhoiLuong.getText(), txtGiaKichHoat.getText(), objects[0].toString())) {
+                    // LỆNH DOWN: Giá thị trường (giaDat) <= Giá kích hoạt (giaKichHoat) thì mới kích hoạt
+                    if (giaDat <= giaKichHoat) {
+                        trangThai = "Thành công";
+                        // Tăng sức mua sau khi bán
+                        sucMua += thanhTien;
+                        txtSucmua.setText(sucMua + "");
+                        historyModel.addRow(new Object[]{
+                                currentTime,
+                                objects[0],
+                                orderType.getSelectedItem(),
+                                txtGiaDat.getText(),
+                                txtKhoiLuong.getText(),
+                                thanhTien, muaBan,
+                                trangThai
+                        });
+                        controller.actionTransactionStock(
+                                muaBan,
+                                txtKhoiLuong.getText(),
+                                txtGiaKichHoat.getText(),
+                                objects[0].toString()
+                        );
+                    } else {
+                        trangThai = "Chờ giá hợp lý";
+                        historyModel.addRow(new Object[]{
+                                currentTime,
+                                objects[0],
+                                orderType.getSelectedItem(),
+                                txtGiaDat.getText(),
+                                txtKhoiLuong.getText(),
+                                thanhTien, muaBan,
+                                trangThai
+                        });
+                    }
+                }
+            }
+            startAutoCheck();
+        } else if (orderType.getSelectedItem().toString().equals("OCO")) {
+            String trangThai1 = "", trangThai2 = "";
+            // Ví dụ 2 lệnh trong OCO:
+            // Lệnh 1: mua với giá kích hoạt = giaKichHoat - biên trượt (txtKhoiLuongOco)
+            // Lệnh 2: bán với giá kích hoạt = giaKichHoat + biên trượt
+            double bienTruot = 0;
+            try {
+                bienTruot = Double.parseDouble(txtKhoiLuongOco.getText());
+            } catch (NumberFormatException e) {
+                bienTruot = 0;
+            }
+            double kichHoatLenh1 = giaKichHoat - bienTruot;  // kích hoạt lệnh mua
+            double kichHoatLenh2 = giaKichHoat + bienTruot;  // kích hoạt lệnh bán
 
-                controller.actionTransactionStock(thaoTacValue, txtKhoiLuong.getText(), txtGiaKichHoat.getText());
-            } else {
-                trangThai = "Chờ giá hợp lý";
-                historyModel.addRow(new Object[]{
-                        currentTime,
-                        stockChart.getObjects()[0],
-                        orderType.getSelectedItem(),
-                        txtGiaDat.getText(),
-                        txtKhoiLuong.getText(),
-                        thanhTien,
-                        "Chờ giá hợp lý"
-                });
+            // Đặt 2 lệnh OCO cùng lúc, trạng thái ban đầu là "Chờ kích hoạt"
+            trangThai1 = "Chờ kích hoạt";
+            trangThai2 = "Chờ kích hoạt";
+
+            // Lưu lịch sử 2 lệnh OCO
+            historyModel.addRow(new Object[]{
+                    currentTime,
+                    objects[0],
+                    "OCO - Mua",
+                    txtGiaDat.getText(),
+                    txtKhoiLuong.getText(),
+                    khoiLuong * kichHoatLenh1,
+                    "Mua",
+                    trangThai1
+            });
+            historyModel.addRow(new Object[]{
+                    currentTime,
+                    objects[0],
+                    "OCO - Bán",
+                    txtGiaDat.getText(),
+                    txtKhoiLuong.getText(),
+                    khoiLuong * kichHoatLenh2,
+                    "Bán",
+                    trangThai2
+            });
+
+            // Lưu vào controller 2 lệnh OCO (bạn cần mở rộng controller để lưu lệnh OCO nếu chưa có)
+            controller.saveTransactionStock(currentTime, objects[0], "OCO - Mua", String.valueOf(giaDat), String.valueOf(khoiLuong), String.valueOf(khoiLuong * kichHoatLenh1), "Mua", trangThai1);
+            controller.saveTransactionStock(currentTime, objects[0], "OCO - Bán", String.valueOf(giaDat), String.valueOf(khoiLuong), String.valueOf(khoiLuong * kichHoatLenh2), "Bán", trangThai2);
+
+            startAutoCheckOCO();
+        } else {
+            String selectedOrderType = orderType.getSelectedItem().toString();
+            if (("T.Up".equals(selectedOrderType) || "T.Down".equals(selectedOrderType)) && "Mua".equals(muaBan)) {
+                double giaThiTruongHienTai = getGiaThiTruong(objects[0].toString());
+                if (giaDat > giaThiTruongHienTai && giaKichHoat > giaThiTruongHienTai) {
+                    trangThai = "chờ xử lý";
+                    historyModel.addRow(new Object[]{
+                            currentTime, objects[0], selectedOrderType, txtGiaDat.getText(), txtKhoiLuong.getText(), thanhTien, "Mua", trangThai
+                    });
+
+                    controller.saveTransactionStock(currentTime, objects[0], selectedOrderType,
+                            String.valueOf(giaDat), String.valueOf(khoiLuong),
+                            String.valueOf(thanhTien), "Mua", trangThai);
+
+                    startAutoCheckTrailing(currentTime, selectedOrderType, giaDat, giaKichHoat, khoiLuong, objects[0].toString(), sucMua);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Giá đặt và kích hoạt phải cao hơn giá thị trường.");
+                }
             }
         }
-        controller.saveTransactionStock(currentTime, stockChart.getObjects()[0], thaoTacValue, String.valueOf(giaDat), String.valueOf(khoiLuong), String.valueOf(thanhTien), trangThai);
+
+
     }
 
 
     private void xoaLenh() {
         int selectedRow = historyTable.getSelectedRow();
         if (selectedRow != -1) {
+            controller.removeTrasaction(selectedRow);
             historyModel.removeRow(selectedRow);
         }
     }
@@ -288,29 +427,60 @@ public class IBoardOrderUI extends JPanel {
     private void suaLenh() {
         editingRow = historyTable.getSelectedRow();
         if (editingRow != -1) {
-//            txtMaCP.setText((String) historyModel.getValueAt(editingRow, 1));
-            txtGiaDat.setText((String) historyModel.getValueAt(editingRow, 3));
-            txtKhoiLuong.setText((String) historyModel.getValueAt(editingRow, 4));
-            orderType.setSelectedItem(historyModel.getValueAt(editingRow, 2));
+            HistoryTransactionStock ht = controller.fixTransaction(editingRow);
+            if (ht != null) {
+                txtGiaDat.setText(ht.getPrice());
+                txtKhoiLuong.setText(ht.getQuantity());
+                orderType.setSelectedItem(ht.getType());
+                // Nếu có các trường khác muốn sửa thì set tương tự
+            }
+            historyTable.repaint();
+            historyTable.revalidate();
         }
     }
 
     private void capNhatLenh() {
         if (editingRow != -1) {
-//            historyModel.setValueAt(txtMaCP.getText(), editingRow, 1);
-            historyModel.setValueAt(orderType.getSelectedItem().toString(), editingRow, 2);
-            historyModel.setValueAt(txtGiaDat.getText(), editingRow, 3);
-            historyModel.setValueAt(txtKhoiLuong.getText(), editingRow, 4);
+            String newType = orderType.getSelectedItem().toString();
+            String newGiaDat = txtGiaDat.getText();
+            String newKhoiLuong = txtKhoiLuong.getText();
+
+            // Update trên table model
+            historyModel.setValueAt(newType, editingRow, 2);
+            historyModel.setValueAt(newGiaDat, editingRow, 3);
+            historyModel.setValueAt(newKhoiLuong, editingRow, 4);
+
+            // Lấy lại đối tượng cũ, tạo đối tượng mới với giá trị cập nhật (giữ nguyên các trường khác)
+            HistoryTransactionStock oldTransaction = controller.fixTransaction(editingRow);
+            if (oldTransaction != null) {
+                HistoryTransactionStock updated = new HistoryTransactionStock(
+                        oldTransaction.getUserName(),
+                        oldTransaction.getTime(),
+                        oldTransaction.getStockID(),
+                        newType,
+                        newGiaDat,
+                        newKhoiLuong,
+                        oldTransaction.getSumPrice(),  // Bạn có thể tính lại nếu muốn
+                        oldTransaction.getMuaban(),
+                        oldTransaction.getTrangThai()
+                );
+
+                // Cập nhật danh sách và lưu file
+                controller.updateTransaction(editingRow, updated);
+            }
+
             editingRow = -1;
+            historyTable.repaint();
+            historyTable.revalidate();
         }
     }
 
     public double maxMua() {
-        return Math.max(((Number) stockChart.getObjects()[6]).doubleValue(), Math.max(((Number) stockChart.getObjects()[4]).doubleValue(), ((Number) stockChart.getObjects()[8]).doubleValue()));
+        return Math.max(((Number) objects[6]).doubleValue(), Math.max(((Number) objects[4]).doubleValue(), ((Number) objects[8]).doubleValue()));
     }
 
     public double maxBan() {
-        return Math.max(((Number) stockChart.getObjects()[10]).doubleValue(), Math.max(((Number) stockChart.getObjects()[12]).doubleValue(), ((Number) stockChart.getObjects()[14]).doubleValue()));
+        return Math.max(((Number) objects[10]).doubleValue(), Math.max(((Number) objects[12]).doubleValue(), ((Number) objects[14]).doubleValue()));
     }
 
     public void setTextFieldNumericOnly(JTextField textField) {
@@ -336,8 +506,8 @@ public class IBoardOrderUI extends JPanel {
         scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(() -> {
             for (int i = 0; i < historyModel.getRowCount(); i++) {
-                String status = (String) historyModel.getValueAt(i, 6);
-                String thaoTac = historyModel.getValueAt(i, 2).toString(); // Lấy thao tác (Mua/Bán)
+                String status = (String) historyModel.getValueAt(i, 7);
+                String thaoTac = historyModel.getValueAt(i, 6).toString(); // Lấy thao tác (Mua/Bán)
                 double currentPrice = Double.parseDouble(txtGiaDat.getText());
                 double activationPrice = Double.parseDouble(txtGiaKichHoat.getText());
                 double availableBalance = Double.parseDouble(txtSucmua.getText());
@@ -351,25 +521,207 @@ public class IBoardOrderUI extends JPanel {
                         if (currentPrice <= activationPrice && totalCost <= availableBalance) {
                             LocalTime currentTime = LocalTime.now();
                             historyModel.setValueAt(currentTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")), i, 0);
-                            historyModel.setValueAt("Thành công", i, 6);
+                            historyModel.setValueAt("Thành công", i, 7);
 
                             // Gọi controller để thực hiện giao dịch
-                            controller.actionTransactionStock(thaoTac, String.valueOf(khoiLuong), txtGiaKichHoat.getText());
+                            controller.actionTransactionStock(thaoTac, String.valueOf(khoiLuong), txtGiaKichHoat.getText(), objects[0].toString());
                         }
                     } else if ("Bán".equals(thaoTac)) {
                         // Với lệnh Bán: Giá thị trường >= Giá kích hoạt
-                        if (currentPrice >= activationPrice && totalCost <= availableBalance) {
+                        if (currentPrice >= activationPrice) {
                             LocalTime currentTime = LocalTime.now();
                             historyModel.setValueAt(currentTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")), i, 0);
-                            historyModel.setValueAt("Thành công", i, 6);
-
+                            historyModel.setValueAt("Thành công", i, 7);
                             // Gọi controller để thực hiện giao dịch
-                            controller.actionTransactionStock(thaoTac, String.valueOf(khoiLuong), txtGiaKichHoat.getText());
+                            controller.actionTransactionStock(thaoTac, String.valueOf(khoiLuong), txtGiaKichHoat.getText(), objects[0].toString());
                         }
                     }
                 }
             }
-        }, 0, 1, TimeUnit.SECONDS); // Kiểm tra mỗi giây
+        }, 0, 3, TimeUnit.SECONDS); // Kiểm tra mỗi giây
+    }
+
+    private Object[][] dataOrderTable(Object[] object) {
+        Object[][] re = new Object[3][4];
+        int[] indices = {5, 4, 10, 11, 7, 6, 12, 13, 9, 8, 14, 15};
+
+        int index = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 4; j++) {
+                re[i][j] = object[indices[index++]];
+            }
+        }
+        return re;
+    }
+
+    private void startAutoCheckOCO() {
+        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                // Giả sử bạn có 1 biến/đối tượng lấy giá thị trường hiện tại, ví dụ:
+                double currentMarketPrice = getCurrentMarketPrice(); // Bạn cần implement hàm này
+
+                double availableBalance = Double.parseDouble(txtSucmua.getText());
+
+                for (int i = 0; i < historyModel.getRowCount(); i++) {
+                    String status = historyModel.getValueAt(i, 7).toString();
+                    String thaoTac = historyModel.getValueAt(i, 6).toString(); // Mua/Bán
+                    int khoiLuong = Integer.parseInt(historyModel.getValueAt(i, 4).toString());
+                    double activationPrice = Double.parseDouble(historyModel.getValueAt(i, 5).toString());
+
+                    // Kiểm tra trạng thái là "Chờ kích hoạt"
+                    if ("Chờ kích hoạt".equals(status)) {
+                        if ("Mua".equals(thaoTac)) {
+                            // Lệnh Mua kích hoạt khi giá thị trường <= giá kích hoạt
+                            if (currentMarketPrice <= activationPrice && (khoiLuong * activationPrice) <= availableBalance) {
+                                LocalTime currentTime = LocalTime.now();
+                                historyModel.setValueAt(currentTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")), i, 0);
+                                historyModel.setValueAt("Thành công", i, 7);
+
+                                // Gọi controller để thực hiện giao dịch
+                                controller.actionTransactionStock(thaoTac, String.valueOf(khoiLuong), String.valueOf(activationPrice), objects[0].toString());
+
+                                // Hủy lệnh còn lại trong cặp OCO
+                                cancelOtherOcoOrder(i);
+                            }
+                        } else if ("Bán".equals(thaoTac)) {
+                            // Lệnh Bán kích hoạt khi giá thị trường >= giá kích hoạt
+                            if (currentMarketPrice >= activationPrice) {
+                                LocalTime currentTime = LocalTime.now();
+                                historyModel.setValueAt(currentTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")), i, 0);
+                                historyModel.setValueAt("Thành công", i, 7);
+
+                                controller.actionTransactionStock(thaoTac, String.valueOf(khoiLuong), String.valueOf(activationPrice), objects[0].toString());
+
+                                // Hủy lệnh còn lại trong cặp OCO
+                                cancelOtherOcoOrder(i);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, 0, 3, TimeUnit.SECONDS);
+    }
+
+    // Hàm hủy lệnh OCO còn lại khi 1 lệnh kích hoạt thành công
+    private void cancelOtherOcoOrder(int activatedIndex) {
+        String activatedOrderType = historyModel.getValueAt(activatedIndex, 2).toString(); // "OCO - Mua" hoặc "OCO - Bán"
+        String maChungKhoan = historyModel.getValueAt(activatedIndex, 1).toString();
+
+        for (int i = 0; i < historyModel.getRowCount(); i++) {
+            if (i == activatedIndex) continue; // Bỏ qua lệnh đã kích hoạt
+
+            String orderType = historyModel.getValueAt(i, 2).toString();
+            String maCK = historyModel.getValueAt(i, 1).toString();
+            String trangThai = historyModel.getValueAt(i, 7).toString();
+
+            // Nếu cùng mã chứng khoán, cùng loại OCO, trạng thái chưa thành công thì hủy
+            if (maCK.equals(maChungKhoan) &&
+                    orderType.startsWith("OCO") &&
+                    trangThai.equals("Chờ kích hoạt")) {
+                historyModel.setValueAt("Đã hủy", i, 7);
+                // Nếu cần, gọi controller để update trạng thái hủy lệnh trong DB
+                controller.cancelTransactionStock(maCK, orderType);
+            }
+        }
+    }
+
+    // Giả sử bạn có phương thức lấy giá thị trường hiện tại
+    private double getCurrentMarketPrice() {
+        // TODO: Lấy giá thị trường thực tế từ API hoặc UI hoặc dữ liệu cập nhật
+        return Double.parseDouble(txtGiaDat.getText()); // ví dụ lấy từ textbox txtGiaHienTai
+    }
+
+    private void startAutoCheckTrailing(String currenTime, String loaiLenh, double giaDat, double giaKichHoat, double khoiLuong, String maCoPhieu, double sucMua) {
+        new Thread(() -> {
+            double giaThiTruongBanDau = getGiaThiTruong(maCoPhieu);
+            double giaDinh = giaThiTruongBanDau;  // cho T.Down
+            double giaDay = giaThiTruongBanDau;  // cho T.Up
+            double giaKichHoatHienTai = giaKichHoat;
+
+            while (true) {
+                try {
+                    Thread.sleep(3000); // kiểm tra mỗi 3 giây
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                double giaMoi = getGiaThiTruong(maCoPhieu);
+
+                if ("T.Down".equals(loaiLenh)) {
+                    // Nếu giá mới cao hơn đỉnh cũ => cập nhật giá kích hoạt mới
+                    if (giaMoi > giaDinh) {
+                        double bienTruot = giaMoi - giaThiTruongBanDau;
+                        giaDinh = giaMoi;
+                        giaKichHoatHienTai = giaKichHoat + bienTruot;
+                        System.out.println("T.Down - Cập nhật giá kích hoạt mới: " + giaKichHoatHienTai);
+                    }
+
+                    if (giaMoi <= giaKichHoatHienTai) {
+                        double giaBanDieuChinh = giaDat + (giaKichHoatHienTai - giaKichHoat);
+                        double thanhTien = khoiLuong * giaBanDieuChinh;
+                        double finalSucMua = sucMua + thanhTien;
+
+                        SwingUtilities.invokeLater(() -> {
+                            txtSucmua.setText(finalSucMua + "");
+                            historyModel.addRow(new Object[]{
+                                    currenTime,
+                                    maCoPhieu,
+                                    "T.Down",
+                                    giaBanDieuChinh,
+                                    khoiLuong,
+                                    thanhTien,
+                                    "Bán",
+                                    "Thành công"
+                            });
+                        });
+
+                        controller.actionTransactionStock("Bán", String.valueOf(khoiLuong), String.valueOf(giaKichHoatHienTai), maCoPhieu);
+                        break;
+                    }
+
+                } else if ("T.Up".equals(loaiLenh)) {
+                    // Nếu giá mới thấp hơn đáy => cập nhật giá kích hoạt mới
+                    if (giaMoi < giaDay) {
+                        double bienTruot = giaThiTruongBanDau - giaMoi;
+                        giaDay = giaMoi;
+                        giaKichHoatHienTai = giaKichHoat - bienTruot;
+                        System.out.println("T.Up - Cập nhật giá kích hoạt mới: " + giaKichHoatHienTai);
+                    }
+
+                    if (giaMoi >= giaKichHoatHienTai) {
+                        double giaMuaDieuChinh = giaDat - (giaKichHoat - giaKichHoatHienTai);
+                        double thanhTien = khoiLuong * giaMuaDieuChinh;
+                        double finalSucMua = sucMua - thanhTien;
+
+                        SwingUtilities.invokeLater(() -> {
+                            txtSucmua.setText(finalSucMua + "");
+                            historyModel.addRow(new Object[]{
+                                    currenTime,
+                                    maCoPhieu,
+                                    "T.Up",
+                                    giaMuaDieuChinh,
+                                    khoiLuong,
+                                    thanhTien,
+                                    "Mua",
+                                    "Thành công"
+                            });
+                        });
+
+                        controller.actionTransactionStock("Mua", String.valueOf(khoiLuong), String.valueOf(giaKichHoatHienTai), maCoPhieu);
+                        break;
+                    }
+                }
+            }
+        }).start();
+    }
+
+
+    private double getGiaThiTruong(String maCoPhieu) {
+        // Giả lập ngẫu nhiên giá thị trường cho mã cổ phiếu (nên thay bằng API thực tế)
+        return Math.round((50 + Math.random() * 10) * 100.0) / 100.0;
     }
 
 

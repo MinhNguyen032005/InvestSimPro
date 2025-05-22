@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -23,12 +24,13 @@ public class StockMarketSwingUI extends JPanel {
 
     public StockMarketSwingUI(IController iController, Object[] objects) {
         this.iController = iController;
-        this.stockMarketHeaderUI = new StockMarketHeaderUI(iController, objects);
         setLayout(new BorderLayout());
         this.stockChartExample = new StockChart("src/data/file_data", objects);
+        this.stockMarketHeaderUI = new StockMarketHeaderUI(iController, objects);
         if (iController.checkLogin()) {
             // Header Panel
-            iController.getStockChartExample(this.stockChartExample);
+            iController.getStockChartExample(objects,stockChartExample);
+            iController.getStock(objects);
             add(stockMarketHeaderUI, BorderLayout.NORTH);
 
             JPanel rightPanel = new JPanel(new BorderLayout());
@@ -95,7 +97,7 @@ public class StockMarketSwingUI extends JPanel {
 
     private Object[][] dataOrderTable(Object[] object) {
         Object[][] re = new Object[3][4];
-        int[] indices = {5, 4, 10, 11, 6, 7, 12, 13, 9, 8, 14, 15};
+        int[] indices = {5, 4, 10, 11, 7, 6, 12, 13, 9, 8, 14, 15};
 
         int index = 0;
         for (int i = 0; i < 3; i++) {

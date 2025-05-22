@@ -1,12 +1,12 @@
 package controller;
 
-import view.PanelBankManagement;
-import view.PanelNotificationMoMoStyle;
-import view.StockChart;
-import view.StockMarketHeaderUI;
+import model.HistoryTransactionStock;
+import model.Users;
+import view.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.util.Collection;
 
 public interface IController {
     void login(JTextField account, JPasswordField passwd);
@@ -37,11 +37,34 @@ public interface IController {
 
     void headerMarketStock(StockMarketHeaderUI stockMarketHeaderUI, Object[] objects);
 
-    void getStockChartExample(StockChart stockChartExample);
+    void getStockChartExample(Object[] stockChartExample, StockChart stockChart);
 
     String setSucMua();
 
-    void actionTransactionStock(String actionCommand, String text, String text1);
+    void actionTransactionStock(String actionCommand, String text, String text1, String string);
 
-    void saveTransactionStock(String currentTime, Object object, String thaoTacValue, String s, String s1, String s2, String trangThai);
+    void saveTransactionStock(String currentTime, Object object, String thaoTacValue, String s, String s1, String s2, String muaBan, String trangThai);
+
+
+    void updateTable(DefaultTableModel historyModel, String historyColumn);
+
+    Object[] getStock(Object[] stockChartExample);
+
+    boolean checkBan(String muaBan, String text, String text1, String string);
+
+    void cancelTransactionStock(String maCK, String orderType);
+
+    HistoryTransactionStock fixTransaction(int editingRow);
+
+    void removeTrasaction(int selectedRow);
+
+    void updateTransaction(int editingRow, HistoryTransactionStock updated);
+
+    Collection<? extends Users> getUser();
+
+    Object getLuotChoi(String nameAccount);
+
+    void addStock();
+
+    void removeStock();
 }

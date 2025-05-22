@@ -136,9 +136,6 @@ public class ManagementMarketStock {
         }
     }
 
-    public int getNumber() {
-        return number;
-    }
 
     public void runAPIStock() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -254,4 +251,11 @@ public class ManagementMarketStock {
         return marketStockMap;
     }
 
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
 }

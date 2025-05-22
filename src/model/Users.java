@@ -6,15 +6,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Users extends Account implements Subject {
+public class Users extends Account implements Observer {
     private double balance;
-    private List<StockTransaction> existingStocks;
-    private List<Observer> observers;
     private BankAccount bankAccount;
+    private String message;
 
     public Users(String idAccount, String name, String nameAccount, String passwdAccount, String email) {
         super(idAccount, name, nameAccount, passwdAccount, email);
-        existingStocks = new ArrayList<>();
         this.role = "user";
         this.balance = 0;
         this.bankAccount = new BankAccount(idAccount, fullName, this.balance);
@@ -33,27 +31,6 @@ public class Users extends Account implements Subject {
         return balance;
     }
 
-
-    @Override
-    public void addObServer(ObServer obServer) {
-
-    }
-
-    @Override
-    public void removeObServer(ObServer obServer) {
-
-    }
-
-    @Override
-    public void notiify() {
-
-    }
-
-    @Override
-    public void updateThongBao(String ndTB) {
-
-    }
-
     public BankAccount getBankAccount() {
         return bankAccount;
     }
@@ -63,4 +40,13 @@ public class Users extends Account implements Subject {
     }
 
 
+    @Override
+    public void update(String message) {
+        this.message = message;
+        System.out.println(this.message);
+    }
+    public String getMessage() {
+        System.out.println(message);
+        return message;
+    }
 }

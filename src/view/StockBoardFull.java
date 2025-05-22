@@ -24,7 +24,12 @@ public class StockBoardFull extends JPanel {
     private StockMarketSwingUI stockMarketSwingUI;
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private Object[] objects1 = new Object[22];
-    private JDialog dialog ;
+    private JDialog dialog;
+    private JScrollPane scrollPane;
+
+    public JScrollPane getScrollPane() {
+        return scrollPane;
+    }
 
     public StockBoardFull(Object[][] objects, IController iController) {
         this.iController = iController;
@@ -144,7 +149,7 @@ public class StockBoardFull extends JPanel {
         }
 
         // ScrollPane bao bọc table
-        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane = new JScrollPane(table);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         // Nền tối
