@@ -86,19 +86,22 @@ public class AccountManagement {
     public void writeToFile(String fileName, Map<String, Account> accountMap) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             for (String key : accountMap.keySet()) {
-                Users account = (Users) accountMap.get(key);
-                String data = String.join("||",
-                        account.getIdAccount(),
-                        account.getFullName(),
-                        String.valueOf(account.getBalance()),
-                        account.getNameAccount(),
-                        account.getPasswdAccount(),
-                        account.getEmail(),
-                        account.getRole(),
-                        String.valueOf(account.getCreateAt())
-                );
-                writer.write(data);
-                writer.newLine();
+                Object obj = accountMap.get(key);
+                if (obj instanceof Users account) {
+                    String data = String.join("||",
+                            account.getIdAccount(),
+                            account.getFullName(),
+                            String.valueOf(account.getBalance()),
+                            account.getNameAccount(),
+                            account.getPasswdAccount(),
+                            account.getEmail(),
+                            account.getRole(),
+                            String.valueOf(account.getCreateAt())
+                    );
+
+                    writer.write(data);
+                    writer.newLine();
+                }
             }
         } catch (IOException e) {
         }
@@ -122,8 +125,22 @@ public class AccountManagement {
             while ((line = br.readLine()) != null) {
                 StringTokenizer st = new StringTokenizer(line, "||");
                 while (st.hasMoreTokens()) {
-                    Users account = new Users(st.nextToken(), st.nextToken(), Double.parseDouble(st.nextToken()), st.nextToken(), st.nextToken(), st.nextToken(), st.nextToken(), LocalDate.parse(st.nextToken()));
-                    accountMap.put(account.getIdAccount(), account);
+                    String id = st.nextToken();
+                    String fullName = st.nextToken();
+                    double balance = Double.parseDouble(st.nextToken());
+                    String username = st.nextToken();
+                    String password = st.nextToken();
+                    String email = st.nextToken();
+                    String role = st.nextToken(); // "user" hoặc "root"
+                    LocalDate createAt = LocalDate.parse(st.nextToken());
+
+                    Account account;
+                    if (role.equalsIgnoreCase("root")) {
+                        account = new Admin(id, fullName, username, password, email);
+                    } else {
+                        account = new Users(id, fullName, balance, username, password, email, role, createAt);
+                    }
+                    accountMap.put(id, account);
                 }
             }
         } catch (IOException e) {
@@ -131,8 +148,8 @@ public class AccountManagement {
         }
     }
 
+
     public boolean checkUserNamePassWD(String text, char[] password) {
-        loadDataAccount();
         for (Account account : accountMap.values()) {
             if (account.getNameAccount().equals(text) && account.getPasswdAccount().equals(String.valueOf(password))) {
                 if (account.role.equals("user")) {
@@ -159,25 +176,29 @@ public class AccountManagement {
         int row = 0;
 
         for (Account acc1 : accountMap.values()) {
-            Users acc = (Users) acc1;
-            matrix[row][0] = acc.idAccount;
-            matrix[row][1] = acc.fullName;
-            matrix[row][2] = acc.getBalance();
-            matrix[row][3] = acc.nameAccount;
-            matrix[row][4] = acc.passwdAccount;
-            matrix[row][5] = acc.email;
-            matrix[row][6] = acc.role;
-            matrix[row][7] = acc.createAt;
-            row++;
+            if (acc1 instanceof Users) {
+                Users acc = (Users) acc1;
+                matrix[row][0] = acc.idAccount;
+                matrix[row][1] = acc.fullName;
+                matrix[row][2] = acc.getBalance();
+                matrix[row][3] = acc.nameAccount;
+                matrix[row][4] = acc.passwdAccount;
+                matrix[row][5] = acc.email;
+                matrix[row][6] = acc.role;
+                matrix[row][7] = acc.createAt;
+                row++;
+            }
         }
         return matrix;
     }
 
     public Users getAccount(String name) {
         for (Account account : accountMap.values()) {
-            Users acc = (Users) account;
-            if (acc.getNameAccount().equals(name)) {
-                return acc;
+            if (account.getRole().equals("user")) {
+                Users acc = (Users) account;
+                if (acc.getNameAccount().equals(name)) {
+                    return acc;
+                }
             }
         }
         return null;
@@ -310,6 +331,4 @@ public class AccountManagement {
         double newBalance = acc.getBankAccount().getAmount();
         updateBalance(id, newBalance);
     }
-
-
 }

@@ -42,8 +42,11 @@ public class ActionController implements IController {
     private String userName;
     private boolean checkLogin = false;
     private TransactionProcess transactionProcess;
-    private StockChart stockChart;
+    private Object[] objectStock;
     private HistoryTransaction transaction;
+    private StockChart stockChart;
+    private ThongKeUserPanel thongKeUserPanel;
+    private ManagementStockRoot managementStockRoot;
 
     public ActionController() throws Exception {
         role = "";
@@ -64,6 +67,7 @@ public class ActionController implements IController {
         homePageUser = new HomePageUser(stockBoardFull, stockBoardUI, stockIndexPanel, findStock, iBoardPanel, this);
         signInFrom = new SignInFrom(this);
         signInPanel = new SignInPanel(signInFrom);
+        thongKeUserPanel = new ThongKeUserPanel(this);
         panelLoginWithVideoBackground = new PanelLogin(signInPanel, homePageUser);
         cardPanel.add(panelLoginWithVideoBackground, "login");
         mainFrame = new MainFrame(cardPanel, this);
@@ -81,7 +85,7 @@ public class ActionController implements IController {
             UIManager.put("OptionPane.background", Color.WHITE);
             UIManager.put("Panel.background", Color.WHITE);
             UIManager.put("Label.foreground", Color.BLACK);
-            UIManager.put("Button.background", new Color(248, 180, 0));
+            UIManager.put("Button.background", Color.red);
             UIManager.put("Button.foreground", Color.WHITE);
             JOptionPane.showMessageDialog(null, "Tài khoản không đúng");
         } else {
@@ -99,6 +103,13 @@ public class ActionController implements IController {
                     cardPanel.add(homePageUser, "user");
                     cardLayout.show(cardPanel, "user");
                     userName = account.getText();
+                    Users user = accountManagement.getAccount(userName);
+                    if (user != null) {
+                        System.out.println(user.getMessage());
+                        if (user.getMessage() != null && !user.getMessage().isEmpty()) {
+                            JOptionPane.showMessageDialog(null, user.getMessage(), "Thông báo từ Admin", JOptionPane.INFORMATION_MESSAGE);
+                        }
+                    }
                     checkLogin = true;
                     break;
                 }
@@ -127,7 +138,11 @@ public class ActionController implements IController {
     public void functionAdmin(String actionCommand) {
         switch (actionCommand) {
             case "Cổ phiếu": {
-
+                stockBoardFull = new StockBoardFull(managementMarketStock.mapToArray(), this);
+                managementStockRoot = new ManagementStockRoot(stockBoardFull, this);
+                homePageRoot = new HomePageRoot(managementStockRoot, panelLeftPageRoot, panelBottomPageRoot);
+                cardPanel.add(homePageRoot, "RootStockManagement");
+                cardLayout.show(cardPanel, "RootStockManagement");
                 break;
             }
             case "Người dùng": {
@@ -139,7 +154,9 @@ public class ActionController implements IController {
                 break;
             }
             case "Thống kê": {
-
+                homePageRoot = new HomePageRoot(thongKeUserPanel, panelLeftPageRoot, panelBottomPageRoot);
+                cardPanel.add(homePageRoot, "ThongKe");
+                cardLayout.show(cardPanel, "ThongKe");
                 break;
             }
         }
@@ -343,6 +360,11 @@ public class ActionController implements IController {
             panelBankManagement.getStockPanel().setBackground(new Color(33, 33, 55));
             panelBankManagement.getStockTable().setBackground(new Color(28, 26, 41));
             panelBankManagement.getStockTable().setForeground(Color.WHITE);
+            for (HistoryTransactionStock historyTransactionStock : transaction.getHistoryList()) {
+                if (historyTransactionStock.getUserName().equals(userName) && historyTransactionStock.getMuaban().equals("Mua") && historyTransactionStock.getTrangThai().equals("Thành công")) {
+                    panelBankManagement.getStockModel().addRow(new Object[]{historyTransactionStock.getStockID(), historyTransactionStock.getQuantity().toString(), historyTransactionStock.getPrice().toString(), String.valueOf(Double.parseDouble(historyTransactionStock.getQuantity()) * Double.parseDouble(historyTransactionStock.getPrice())), historyTransactionStock.getTime()});
+                }
+            }
             JScrollPane scrollPane = new JScrollPane(panelBankManagement.getStockTable());
             scrollPane.getViewport().setBackground(new Color(28, 26, 41));
             panelBankManagement.getStockPanel().add(scrollPane, BorderLayout.CENTER);
@@ -355,39 +377,66 @@ public class ActionController implements IController {
             JButton btnUpdate, btnChangePassword, btnDelete;
             JPanel panel = new JPanel(new GridLayout(9, 2, 0, 0));
             panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+            panel.setBackground(new Color(33, 33, 55));
+            JLabel lblHoTen = new JLabel("Họ tên:");
+            lblHoTen.setForeground(Color.WHITE);
+            panel.add(lblHoTen);
 
-            panel.add(new JLabel("Họ tên:"));
             txtName = new JTextField(acc.getFullName());
             txtName.setEnabled(false);
+            txtName.setForeground(Color.WHITE);
             panel.add(txtName);
 
-            panel.add(new JLabel("Email:"));
+            JLabel lblEmail = new JLabel("Email:");
+            lblEmail.setForeground(Color.WHITE);
+            panel.add(lblEmail);
+
             txtEmail = new JTextField(acc.getEmail());
             txtEmail.setEnabled(false);
+            txtEmail.setForeground(Color.WHITE);
             panel.add(txtEmail);
 
-            panel.add(new JLabel("Tên đăng nhập:"));
+            JLabel lblUsername = new JLabel("Tên đăng nhập:");
+            lblUsername.setForeground(Color.WHITE);
+            panel.add(lblUsername);
+
             txtUsername = new JTextField(acc.getNameAccount());
             txtUsername.setEnabled(false);
+            txtUsername.setForeground(Color.WHITE);
             panel.add(txtUsername);
 
-            panel.add(new JLabel("Mật khẩu:"));
+            JLabel lblPassword = new JLabel("Mật khẩu:");
+            lblPassword.setForeground(Color.WHITE);
+            panel.add(lblPassword);
+
             txtPassword = new JPasswordField(acc.getPasswdAccount());
             txtPassword.setEnabled(false);
+            txtPassword.setForeground(Color.WHITE);
             panel.add(txtPassword);
 
-            panel.add(new JLabel("Ngày tạo:"));
+            JLabel lblCreatedText = new JLabel("Ngày tạo:");
+            lblCreatedText.setForeground(Color.WHITE);
+            panel.add(lblCreatedText);
+
             lblCreatedDate = new JLabel(String.valueOf(acc.getCreateAt()));
+            lblCreatedDate.setForeground(Color.WHITE);
             panel.add(lblCreatedDate);
+
 
             JPanel buttonPanel = new JPanel();
             btnUpdate = new JButton("Cập nhật");
             btnChangePassword = new JButton("Đổi mật khẩu");
             btnDelete = new JButton("Xóa tài khoản");
 
+            btnUpdate.setBackground(Color.white);
+            btnChangePassword.setBackground(Color.white);
+            btnDelete.setBackground(Color.RED);
+            btnDelete.setForeground(Color.white);
+
             buttonPanel.add(btnUpdate);
             buttonPanel.add(btnChangePassword);
             buttonPanel.add(btnDelete);
+            buttonPanel.setBackground(new Color(33, 33, 55));
             panel.add(buttonPanel);
             btnUpdate.addActionListener(new ActionListener() {
                 @Override
@@ -552,7 +601,7 @@ public class ActionController implements IController {
             public void actionPerformed(ActionEvent e) {
                 Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
                 JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(mainFrame), "", true);
-                iBoardOrderUI = new IBoardOrderUI(stockChart, actionController);
+                iBoardOrderUI = new IBoardOrderUI(stockChart, objectStock, actionController);
                 int width = (int) (screenSize.getWidth() * 0.9);
                 int height = (int) (screenSize.getHeight() * 0.85);
                 dialog.setSize(width, height);
@@ -610,9 +659,116 @@ public class ActionController implements IController {
     }
 
     @Override
-    public void getStockChartExample(StockChart stockChartExample) {
-        this.stockChart = stockChartExample;
+    public void getStockChartExample(Object[] stockChartExample, StockChart stockChart1) {
+        objectStock = stockChartExample;
+        stockChart = stockChart1;
     }
+
+    @Override
+    public Object[] getStock(Object[] stockChartExample) {
+        objectStock = Arrays.copyOf(stockChartExample, stockChartExample.length);
+        return objectStock;
+    }
+
+    @Override
+    public boolean checkBan(String muaBan, String text, String text1, String string) {
+        List<HistoryTransactionStock> matchingStocks = transaction.getHistoryList().stream()
+                .filter(stock -> stock.getStockID().equals(string)) // mã cổ phiếu
+                .filter(stock -> stock.getMuaban().equals("Mua")) // chỉ lấy giao dịch Mua
+                .filter(stock -> stock.getTrangThai().equals("Thành công")) // chỉ lấy giao dịch thành công
+                .sorted(Comparator.comparing(HistoryTransactionStock::getTime)) // sắp xếp theo thời gian
+                .toList();
+        int totalQuantity = matchingStocks.stream()
+                .mapToInt(stock -> (int) Double.parseDouble(stock.getQuantity()))
+                .sum();
+        int sellQuantity = Integer.parseInt(text);
+        if (sellQuantity > totalQuantity) {
+            JOptionPane.showMessageDialog(null, "Không đủ số lượng để bán");
+            return false; // KHÔNG đủ để bán
+        }
+        for (HistoryTransactionStock stock : matchingStocks) {
+            stock.setTrangThai("Đã bán");
+            stock.setMuaban("Bán");
+        }
+        return true; // ĐỦ để bán
+    }
+
+    @Override
+    public void cancelTransactionStock(String maCK, String orderType) {
+        transaction.cancelTransactionStock(maCK, orderType);
+    }
+
+    @Override
+    public HistoryTransactionStock fixTransaction(int editingRow) {
+        return transaction.getTransaction(editingRow);
+    }
+
+    @Override
+    public void removeTrasaction(int selectedRow) {
+        transaction.removeTransaction(selectedRow);
+    }
+
+    @Override
+    public void updateTransaction(int editingRow, HistoryTransactionStock updated) {
+        transaction.updateTransaction(editingRow, updated);
+    }
+
+    @Override
+    public Collection<? extends Users> getUser() {
+        List<Users> users = new ArrayList<>();
+        for (Map.Entry<String, Account> entry : accountManagement.getAccountMap().entrySet()) {
+            if (entry.getValue().getRole().equals("user")) {
+                users.add((Users) entry.getValue());
+            }
+        }
+        return users;
+    }
+
+    @Override
+    public Object getLuotChoi(String nameAccount) {
+        int count = 0;
+        for (HistoryTransactionStock historyTransactionStock : transaction.getHistoryList()) {
+            if (historyTransactionStock.getUserName().equals(nameAccount)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    @Override
+    public void addStock() {
+        int temp = managementMarketStock.getNumber();
+        managementMarketStock.setNumber(temp + 1);
+        for (Account account : accountManagement.getAccountMap().values()) {
+            if (account instanceof Admin) {
+                Admin admin1 = (Admin) account;
+                for (Account acc : accountManagement.getAccountMap().values()) {
+                    if (acc instanceof Users user) {
+                        admin1.attach(user); // Thêm user làm Observer
+                    }
+                }
+                admin1.setMessage("Cổ phiếu: CK" + temp + 1 + " được thêm");
+            }
+        }
+    }
+
+    @Override
+    public void removeStock() {
+        int temp = managementMarketStock.getNumber();
+        managementMarketStock.setNumber(temp - 1);
+        for (Account account : accountManagement.getAccountMap().values()) {
+            if (account instanceof Admin) {
+                Admin admin1 = (Admin) account;
+                for (Account acc : accountManagement.getAccountMap().values()) {
+                    if (acc instanceof Users user) {
+                        admin1.attach(user); // Thêm user làm Observer
+                    }
+                }
+                admin1.setMessage("cổ phiếu: CK" + temp + "được xóa");
+            }
+        }
+    }
+
 
     @Override
     public String setSucMua() {
@@ -621,24 +777,63 @@ public class ActionController implements IController {
     }
 
     @Override
-    public void actionTransactionStock(String actionCommand, String text, String text1) {
+    public void actionTransactionStock(String actionCommand, String text, String text1, String string) {
         Users acc = accountManagement.getAccount(userName);
         if (actionCommand.equals("Bán")) {
-            System.out.println(1);
-            Stock stock = new Stock("", Integer.parseInt(text), Double.parseDouble(text), LocalDateTime.now());
-            accountManagement.sellStock(acc.getIdAccount(), stock);
-            return;
+            List<HistoryTransactionStock> matchingStocks = transaction.getHistoryList().stream()
+                    .filter(stock -> stock.getStockID().equals(string)) // mã cổ phiếu
+                    .filter(stock -> stock.getMuaban().equalsIgnoreCase(actionCommand)) // chỉ lấy giao dịch Mua
+                    .filter(stock -> stock.getTrangThai().equalsIgnoreCase("Thành công")) // chỉ lấy giao dịch thành công
+                    .sorted(Comparator.comparing(HistoryTransactionStock::getTime)) // sắp xếp theo thời gian
+                    .toList();
+            int totalQuantity = matchingStocks.stream()
+                    .mapToInt(stock -> Integer.parseInt(stock.getQuantity()))
+                    .sum();
+            int sellQuantity = Integer.parseInt(text);
+            if (sellQuantity > totalQuantity) {
+                return;
+            }
+            int remaining = sellQuantity;
+            List<Stock> stocksToSell = new ArrayList<>();
+
+            for (HistoryTransactionStock history : matchingStocks) {
+                int available = Integer.parseInt(history.getQuantity());
+                Stock stock = new Stock(string, remaining, Double.parseDouble(text1), LocalDateTime.parse(history.getTime()));
+                if (available >= remaining) {
+                    // Tạo Stock với số lượng = remaining
+                    stocksToSell.add(stock);
+                    break;
+                } else {
+                    // Dùng hết số lượng cổ phiếu này
+                    stocksToSell.add(stock);
+                    remaining -= available;
+                }
+                accountManagement.sellStock(acc.getIdAccount(), stock);
+                setSucMua();
+            }
         } else {
-            System.out.println("mua");
-            Stock stock = new Stock("", Integer.parseInt(text), Double.parseDouble(text), LocalDateTime.now());
+            Stock stock = new Stock(string, Integer.parseInt(text), Double.parseDouble(text), LocalDateTime.now());
             accountManagement.buyStock(acc.getIdAccount(), stock);
+            setSucMua();
         }
     }
 
     @Override
-    public void saveTransactionStock(String currentTime, Object object, String thaoTacValue, String s, String s1, String s2, String trangThai) {
-
+    public void saveTransactionStock(String currentTime, Object object, String thaoTacValue, String s, String s1, String s2, String muaBan, String trangThai) {
+        transaction.addTransaction(userName, currentTime, (String) object, thaoTacValue, s, s1, s2, muaBan, trangThai);
     }
+
+    @Override
+    public void updateTable(DefaultTableModel historyModel, String historyColumn) {
+        historyModel.setRowCount(0);
+        Users acc = accountManagement.getAccount(userName);
+        for (HistoryTransactionStock historyTransaction : transaction.getHistoryList()) {
+            if (acc.getNameAccount().equals(historyTransaction.getUserName()) && historyTransaction.getStockID().equals(historyColumn)) {
+                historyModel.addRow(new Object[]{historyTransaction.getTime(), historyTransaction.getStockID(), historyTransaction.getType(), historyTransaction.getPrice(), historyTransaction.getQuantity(), historyTransaction.getSumPrice(), historyTransaction.getMuaban(), historyTransaction.getTrangThai()});
+            }
+        }
+    }
+
 
     private JLabel createLabel(String text, Color color, int fontSize) {
         JLabel label = new JLabel(text);
@@ -646,4 +841,6 @@ public class ActionController implements IController {
         label.setFont(new Font("SansSerif", Font.BOLD, fontSize));
         return label;
     }
+
+
 }

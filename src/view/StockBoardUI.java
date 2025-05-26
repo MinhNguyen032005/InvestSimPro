@@ -126,6 +126,7 @@ public class StockBoardUI extends JPanel {
             }
         });
         timer.start();
+        setOpaque(true);
     }
 
 }

@@ -1,0 +1,1 @@
+a||Stock{stockID='CK102', quantity=1, price=1.0, timestamp=2025-05-21T08:58:32.280620263}

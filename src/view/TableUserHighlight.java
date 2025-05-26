@@ -7,7 +7,7 @@ import java.awt.*;
 public class TableUserHighlight extends JPanel {
     private JTable table;
     private int selectedRow = -1; // lưu dòng đang được chọn
-    Object[][] data;
+    private Object[][] data;
 
     public TableUserHighlight() {
         String[] columns = {
@@ -76,6 +76,10 @@ public class TableUserHighlight extends JPanel {
         JPanel panelButton = new JPanel();
         JButton buttonFix = new JButton("Fix");
         JButton buttonSave = new JButton("Save");
+        buttonFix.setBackground(new Color(0, 123, 255));
+        buttonFix.setForeground(Color.white);
+        buttonSave.setBackground(new Color(0, 123, 255));
+        buttonSave.setForeground(Color.white);
         panelButton.add(buttonFix);
         panelButton.add(buttonSave);
         add(panelButton, BorderLayout.SOUTH);

@@ -374,6 +374,10 @@ public class StockChart extends JPanel {
         return dataset;
     }
 
+    public String getStockID() {
+        return objects[0].toString();
+    }
+
     public Object[] getObjects() {
         return objects;
     }

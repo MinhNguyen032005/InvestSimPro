@@ -56,7 +56,7 @@ public class HomePageUser extends JPanel {
                 iController.newTable(findStock.getjTextField().getText(), stockBoardFull.getDefaultTableModel());
             }
         });
-        stockBoardFull.setPreferredSize(new Dimension(screenSize.width, screenSize.height / 2));
+        stockBoardFull.getScrollPane().setPreferredSize(new Dimension(screenSize.width, screenSize.height / 2 + 150));
         add(topPanel, BorderLayout.NORTH);              // panel trên cùng
         JPanel jPanel = new JPanel();
         jPanel.setLayout(new BorderLayout());

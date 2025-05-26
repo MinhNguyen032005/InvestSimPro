@@ -18,8 +18,10 @@ public class SignInFrom extends JPanel {
     private JTextField account;
     private JPasswordField passwd;
     private JButton button;
+    private IController iController;
 
     public SignInFrom(IController iController) {
+        this.iController = iController;
         this.setPreferredSize(new Dimension(1000, 1000));
         Font robotoMedium = FontLoader.loadFont("src/data/font/Roboto-Light.ttf");
         this.setLayout(new BorderLayout());
@@ -97,12 +99,10 @@ public class SignInFrom extends JPanel {
         buttonPanel.add(signUpButton, gbc);
         gbc.gridx = 1;
         buttonPanel.add(forgotPasswordButton, gbc);
-//        forgotPasswordButton.addActionListener(iController.forgotPasswd());
         account.setMaximumSize(new Dimension(400, 20));
         passwd.setMaximumSize(new Dimension(400, 20));
         button.setMaximumSize(new Dimension(390, 1000));
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.X_AXIS)); // Thiết lập layout cho leftPanel
-//        rightPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 //panel cua khung tai khoan
         JPanel accountPanel = new JPanel(new BorderLayout());
         accountPanel.setBorder(BorderFactory.createTitledBorder(
@@ -208,19 +208,21 @@ public class SignInFrom extends JPanel {
         add(this.infoPanel, BorderLayout.CENTER);
 //        setBackground(new Color(255, 255, 255, 100));
         setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 2));
-        signUpButton.addActionListener(e -> {
-            rightPanel.add(new FromSignUp(iController));
-        });
+        signUpButton.addActionListener(e -> this.signUpButton(rightPanel));
         forgotPasswordButton.addActionListener(e -> {
-            rightPanel.add(new ForgotPasswordSwing(iController));
+            rightPanel.add(new ForgotPasswordSwing(this.iController));
         });
 
         button.addActionListener(e -> {
-            iController.login(account, passwd);
+            this.iController.login(account, passwd);
         });
 
-
     }
+
+    private void signUpButton(JPanel rightPanel) {
+        rightPanel.add(new FromSignUp(this.iController));
+    }
+
 
     @Override
     protected void paintComponent(Graphics g) {

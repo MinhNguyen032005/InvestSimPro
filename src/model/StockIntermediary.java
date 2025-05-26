@@ -38,10 +38,8 @@ public class StockIntermediary {
         if (portfolio.sellStock(nameAccount, stockID, quantity)) {
             double totalPrice = price * quantity;
             bankAccount.deposit(totalPrice);
-            System.out.println("✅ Bán thành công " + quantity + " cổ phiếu " + stockID + " với giá " + price);
             return true;
         } else {
-            System.out.println("❌ Không đủ số lượng cổ phiếu để bán!");
             return false;
         }
     }

@@ -22,7 +22,7 @@ public class PanelBankManagement extends JPanel {
         tabbedPane = new JTabbedPane();
         bankPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        txtBalance = new JTextField("1000000", 15);
+        txtBalance = new JTextField("", 15);
         JLabel lblDeposit = new JLabel("Nạp tiền:");
         txtDepositAmount = new JTextField(15);
         btnDeposit = new JButton("Nạp tiền");
@@ -30,7 +30,7 @@ public class PanelBankManagement extends JPanel {
         txtWithdrawAmount = new JTextField(15);
         btnWithdraw = new JButton("Rút tiền");
         stockPanel = new JPanel(new BorderLayout());
-        String[] columns = {"Mã cổ phiếu", "Số lượng", "Giá trị"};
+        String[] columns = {"Mã cổ phiếu", "Số lượng", "Giá trị","Tổng tiền","Ngày"};
         stockModel = new DefaultTableModel(columns, 0);
         stockTable = new JTable(stockModel);
         accountPanel = new JPanel(new BorderLayout());

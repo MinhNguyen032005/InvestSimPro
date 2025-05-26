@@ -19,10 +19,6 @@ public class ManagementMarketStock {
     private List<MarketStock> stocks;
     private static List<String> indexNames = new ArrayList<>();
 
-    public List<String> getIndexNames() {
-        return indexNames;
-    }
-
     public ManagementMarketStock() {
         indexNames.add("VNINDEX");
         indexNames.add("HNXUPCOM");
@@ -136,9 +132,6 @@ public class ManagementMarketStock {
         }
     }
 
-    public int getNumber() {
-        return number;
-    }
 
     public void runAPIStock() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -254,4 +247,11 @@ public class ManagementMarketStock {
         return marketStockMap;
     }
 
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
 }

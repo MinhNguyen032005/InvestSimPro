@@ -12,14 +12,12 @@ import java.util.List;
 
 public class FindStock extends JPanel {
     private JTextField jTextField;
-    private JButton jButton;
     private IController iController;
     private JButton jButton1;
 
     public FindStock(IController iController) {
         this.iController = iController;
         setBackground(new Color(41, 39, 55));
-        Font robotoMedium = FontLoader.loadFont("src/data/font/Roboto-Light.ttf");
         setLayout(new BorderLayout());
         JPanel jPanel = new JPanel();
         jButton1 = new JButton("");
