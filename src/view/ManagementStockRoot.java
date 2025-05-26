@@ -16,13 +16,17 @@ public class ManagementStockRoot extends JPanel {
         this.setLayout(new BorderLayout());
         JPanel jPanel1 = new JPanel();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        stockBoardFull.getScrollPane().setPreferredSize(new Dimension(screenSize.width / 2 + (screenSize.width / 3) + 100, screenSize.height / 2 + 150));
+        stockBoardFull.getScrollPane().setPreferredSize(new Dimension(screenSize.width / 2 + (screenSize.width / 3) + 100, screenSize.height-150 ));
         jPanel1.add(stockBoardFull);
         jPanel1.setPreferredSize(new Dimension(100, 400));
         this.add(jPanel1, BorderLayout.CENTER);
         JPanel jPanel = new JPanel(new FlowLayout());
         JButton jButton = new JButton("Thêm");
         JButton jButton1 = new JButton("Xóa");
+        jButton.setBackground(new Color(0, 123, 255));
+        jButton.setForeground(Color.white);
+        jButton1.setForeground(Color.white);
+        jButton1.setBackground(new Color(0, 123, 255));
         jPanel.add(jButton);
         jPanel.add(jButton1);
         this.add(jPanel, BorderLayout.SOUTH);

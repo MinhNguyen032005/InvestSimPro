@@ -45,7 +45,6 @@ public interface IController {
 
     void saveTransactionStock(String currentTime, Object object, String thaoTacValue, String s, String s1, String s2, String muaBan, String trangThai);
 
-
     void updateTable(DefaultTableModel historyModel, String historyColumn);
 
     Object[] getStock(Object[] stockChartExample);

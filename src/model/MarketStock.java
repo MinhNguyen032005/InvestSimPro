@@ -172,32 +172,6 @@ public class MarketStock {
         return stocks;
     }
 
-    // API Method để cập nhật thông tin cổ phiếu
-    public void updateStock(List<MarketStock> stocks, String symbol, double newMatchPrice, int newMatchVolume) {
-        for (MarketStock stock : stocks) {
-            if (stock.getSymbol().equals(symbol)) {
-                stock.matchPrice = newMatchPrice;
-                stock.matchVolume = newMatchVolume;
-                return;
-            }
-        }
-    }
-
-    // API Method để xóa cổ phiếu
-    public void removeStock(List<MarketStock> stocks, String symbol) {
-        stocks.removeIf(stock -> stock.getSymbol().equals(symbol));
-    }
-
-    // API Method để lấy thông tin cổ phiếu
-    public MarketStock getStockInfo(List<MarketStock> stocks, String symbol) {
-        for (MarketStock stock : stocks) {
-            if (stock.getSymbol().equals(symbol)) {
-                return stock;
-            }
-        }
-        return null;
-    }
-
 
     public void setMatchPrice(double matchPrice) {
         this.matchPrice = matchPrice;

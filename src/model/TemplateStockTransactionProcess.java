@@ -5,9 +5,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class TemplateStockTransactionProcess {
-    AccountManagement accountManagement;
-    StockTransaction stockTransaction;
-    Portfolio portfolio;
+    private AccountManagement accountManagement;
+    private StockTransaction stockTransaction;
+    private Portfolio portfolio;
 
 
     public TemplateStockTransactionProcess(AccountManagement accountManagement) {

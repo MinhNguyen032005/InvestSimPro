@@ -61,7 +61,6 @@ public class PanelNotificationMoMoStyle extends JPanel {
 
         card.add(messageLabel, BorderLayout.CENTER);
         card.add(dateLabel, BorderLayout.SOUTH);
-
         return card;
     }
 }

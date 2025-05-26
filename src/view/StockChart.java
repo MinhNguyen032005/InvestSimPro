@@ -41,7 +41,6 @@ public class StockChart extends JPanel {
 
     public StockChart(String dataFolder, Object[] objects) {
         this.objects = objects;
-        System.out.println("StocK:"+Arrays.toString(objects));
         this.dataFolder = dataFolder;
         chart = createStockChart();
         chartPanel = new ChartPanel(chart);

@@ -43,10 +43,8 @@ public class Users extends Account implements Observer {
     @Override
     public void update(String message) {
         this.message = message;
-        System.out.println(this.message);
     }
     public String getMessage() {
-        System.out.println(message);
         return message;
     }
 }

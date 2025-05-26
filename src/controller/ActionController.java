@@ -47,7 +47,6 @@ public class ActionController implements IController {
     private StockChart stockChart;
     private ThongKeUserPanel thongKeUserPanel;
     private ManagementStockRoot managementStockRoot;
-    private Admin admin;
 
     public ActionController() throws Exception {
         role = "";
@@ -86,7 +85,7 @@ public class ActionController implements IController {
             UIManager.put("OptionPane.background", Color.WHITE);
             UIManager.put("Panel.background", Color.WHITE);
             UIManager.put("Label.foreground", Color.BLACK);
-            UIManager.put("Button.background", new Color(248, 180, 0));
+            UIManager.put("Button.background", Color.red);
             UIManager.put("Button.foreground", Color.WHITE);
             JOptionPane.showMessageDialog(null, "Tài khoản không đúng");
         } else {
@@ -378,39 +377,66 @@ public class ActionController implements IController {
             JButton btnUpdate, btnChangePassword, btnDelete;
             JPanel panel = new JPanel(new GridLayout(9, 2, 0, 0));
             panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+            panel.setBackground(new Color(33, 33, 55));
+            JLabel lblHoTen = new JLabel("Họ tên:");
+            lblHoTen.setForeground(Color.WHITE);
+            panel.add(lblHoTen);
 
-            panel.add(new JLabel("Họ tên:"));
             txtName = new JTextField(acc.getFullName());
             txtName.setEnabled(false);
+            txtName.setForeground(Color.WHITE);
             panel.add(txtName);
 
-            panel.add(new JLabel("Email:"));
+            JLabel lblEmail = new JLabel("Email:");
+            lblEmail.setForeground(Color.WHITE);
+            panel.add(lblEmail);
+
             txtEmail = new JTextField(acc.getEmail());
             txtEmail.setEnabled(false);
+            txtEmail.setForeground(Color.WHITE);
             panel.add(txtEmail);
 
-            panel.add(new JLabel("Tên đăng nhập:"));
+            JLabel lblUsername = new JLabel("Tên đăng nhập:");
+            lblUsername.setForeground(Color.WHITE);
+            panel.add(lblUsername);
+
             txtUsername = new JTextField(acc.getNameAccount());
             txtUsername.setEnabled(false);
+            txtUsername.setForeground(Color.WHITE);
             panel.add(txtUsername);
 
-            panel.add(new JLabel("Mật khẩu:"));
+            JLabel lblPassword = new JLabel("Mật khẩu:");
+            lblPassword.setForeground(Color.WHITE);
+            panel.add(lblPassword);
+
             txtPassword = new JPasswordField(acc.getPasswdAccount());
             txtPassword.setEnabled(false);
+            txtPassword.setForeground(Color.WHITE);
             panel.add(txtPassword);
 
-            panel.add(new JLabel("Ngày tạo:"));
+            JLabel lblCreatedText = new JLabel("Ngày tạo:");
+            lblCreatedText.setForeground(Color.WHITE);
+            panel.add(lblCreatedText);
+
             lblCreatedDate = new JLabel(String.valueOf(acc.getCreateAt()));
+            lblCreatedDate.setForeground(Color.WHITE);
             panel.add(lblCreatedDate);
+
 
             JPanel buttonPanel = new JPanel();
             btnUpdate = new JButton("Cập nhật");
             btnChangePassword = new JButton("Đổi mật khẩu");
             btnDelete = new JButton("Xóa tài khoản");
 
+            btnUpdate.setBackground(Color.white);
+            btnChangePassword.setBackground(Color.white);
+            btnDelete.setBackground(Color.RED);
+            btnDelete.setForeground(Color.white);
+
             buttonPanel.add(btnUpdate);
             buttonPanel.add(btnChangePassword);
             buttonPanel.add(btnDelete);
+            buttonPanel.setBackground(new Color(33, 33, 55));
             panel.add(buttonPanel);
             btnUpdate.addActionListener(new ActionListener() {
                 @Override

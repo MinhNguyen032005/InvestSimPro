@@ -86,19 +86,22 @@ public class AccountManagement {
     public void writeToFile(String fileName, Map<String, Account> accountMap) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             for (String key : accountMap.keySet()) {
-                Users account = (Users) accountMap.get(key);
-                String data = String.join("||",
-                        account.getIdAccount(),
-                        account.getFullName(),
-                        String.valueOf(account.getBalance()),
-                        account.getNameAccount(),
-                        account.getPasswdAccount(),
-                        account.getEmail(),
-                        account.getRole(),
-                        String.valueOf(account.getCreateAt())
-                );
-                writer.write(data);
-                writer.newLine();
+                Object obj = accountMap.get(key);
+                if (obj instanceof Users account) {
+                    String data = String.join("||",
+                            account.getIdAccount(),
+                            account.getFullName(),
+                            String.valueOf(account.getBalance()),
+                            account.getNameAccount(),
+                            account.getPasswdAccount(),
+                            account.getEmail(),
+                            account.getRole(),
+                            String.valueOf(account.getCreateAt())
+                    );
+
+                    writer.write(data);
+                    writer.newLine();
+                }
             }
         } catch (IOException e) {
         }
@@ -328,6 +331,4 @@ public class AccountManagement {
         double newBalance = acc.getBankAccount().getAmount();
         updateBalance(id, newBalance);
     }
-
-
 }

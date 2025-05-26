@@ -6,7 +6,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public class FromSignUp extends JOptionPane {
+    private IController iController;
+
     public FromSignUp(IController iController) {
+        this.iController = iController;
         // Cấu hình giao diện UI
         UIManager.put("OptionPane.background", Color.WHITE);
         UIManager.put("Panel.background", Color.WHITE);
@@ -79,14 +82,18 @@ public class FromSignUp extends JOptionPane {
         // Xử lý sự kiện khi chọn OK hoặc Cancel
         if (option == JOptionPane.OK_OPTION) {
             if (nameField.getText().isEmpty() || accountField.getText().isEmpty()
-                    || passwordField.getPassword().length == 0 || emailField.getText().isEmpty() || !emailField.getText().contains("@")||iController.checkContain(accountField.getText())) {
+                    || passwordField.getPassword().length == 0 || emailField.getText().isEmpty() || !emailField.getText().contains("@") || iController.checkContain(accountField.getText())) {
                 JOptionPane.showMessageDialog(null, "Đăng ký không thành công", "Lỗi", JOptionPane.ERROR_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(null, "🎉 Đăng ký thành công! 🎉\n\n", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-                iController.signUp(nameField.getText(), accountField.getText(),
-                        passwordField.getPassword(),
-                        emailField.getText());
+                this.signUp(this.iController, nameField, accountField,
+                        passwordField,
+                        emailField);
             }
         }
+    }
+
+    private void signUp(IController iController, JTextField nameField, JTextField accountField, JPasswordField passwordField, JTextField emailField) {
+        iController.signUp(nameField.getText(), accountField.getText(), passwordField.getPassword(), emailField.getText());
     }
 }

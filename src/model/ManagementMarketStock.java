@@ -19,10 +19,6 @@ public class ManagementMarketStock {
     private List<MarketStock> stocks;
     private static List<String> indexNames = new ArrayList<>();
 
-    public List<String> getIndexNames() {
-        return indexNames;
-    }
-
     public ManagementMarketStock() {
         indexNames.add("VNINDEX");
         indexNames.add("HNXUPCOM");

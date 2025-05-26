@@ -89,31 +89,6 @@ public class HistoryTransaction {
             }
         }
     }
-
-//    // Thực thi giao dịch khi được kích hoạt
-//    public void actionTransactionStock(String thaoTac, String khoiLuongStr, String giaKichHoatStr, String maChungKhoan) {
-//        int khoiLuong = Integer.parseInt(khoiLuongStr);
-//        double giaKichHoat = Double.parseDouble(giaKichHoatStr);
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-//        String currentTime = LocalDateTime.now().format(formatter);
-//        for (HistoryTransactionStock t : historyList) {
-//            if (t.getStockID().equals(maChungKhoan)
-//                    && t.getMuaban().equals(thaoTac)
-//                    && t.getTrangThai().equals("Chờ kích hoạt")
-//                    && Integer.parseInt(t.getQuantity()) == khoiLuong
-//                    && Double.parseDouble(t.getPrice()) == giaKichHoat) {
-//                t.setTrangThai("Thành công");
-//                t.setTime(currentTime);
-//
-//                // Nếu đây là lệnh OCO, thì hủy lệnh còn lại
-//                if (t.getType().startsWith("OCO")) {
-//                    String otherLoaiLenh = t.getMuaban().contains("Mua") ? t.getMuaban().replace("Mua", "Bán") : t.getMuaban().replace("Bán", "Mua");
-//                    cancelTransactionStock(maChungKhoan, otherLoaiLenh);
-//                }
-//                break;
-//            }
-//        }
-//    }
     public void removeTransaction(int index) {
         if (index >= 0 && index < historyList.size()) {
             historyList.remove(index);

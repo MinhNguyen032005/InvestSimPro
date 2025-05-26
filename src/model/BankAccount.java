@@ -53,14 +53,6 @@ public class BankAccount {
         this.amount += amount;
     }
 
-    public String getBankID() {
-        return bankID;
-    }
-
-    public String getBankName() {
-        return bankName;
-    }
-
     public double getAmount() {
         return amount;
     }

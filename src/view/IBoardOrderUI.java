@@ -211,7 +211,6 @@ public class IBoardOrderUI extends JPanel {
         if (dataset != null) {
             dataset.addValue(currentPrice, "Giá cổ phiếu", currentTime);
         } else {
-            System.out.println("Dataset chưa được khởi tạo!");
         }
     }
 
